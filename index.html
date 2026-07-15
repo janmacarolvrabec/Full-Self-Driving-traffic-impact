@@ -268,7 +268,7 @@
     <input type="range" id="mapYear" min="2025" max="2060" step="1" value="2025" aria-label="Leto simulacije">
     <div class="mapstats" id="mapStats"></div>
     <div class="leadlegend" id="mapLegend"></div>
-    <div class="leadcap">Prikaz <b>srednjega scenarija</b>: vsaka pika je del voznega parka, ki iz <b>klasičnega</b> (temna) prehaja v <b>avtonomnega</b> (svetla). Val se sproži v <b>ZDA</b>, ga hitro prevzame <b>Kitajska</b>, nato se razširi na ves svet do 2060; ob strani se vidi upad skupnega števila vozil (vrh okoli 2037). Ilustrativno — poanta je dinamika, ne natančna lega vozil.</div>
+    <div class="leadcap">Prikaz <b>srednjega scenarija</b>: vsaka pika je del voznega parka, ki iz <b>klasičnega</b> (temna) prehaja v <b>avtonomnega</b> (svetla). Val se sproži v <b>ZDA</b> (poln avtonomni park šele okoli 2045), sledita <b>Kitajska</b> in Evropa; slabše razviti deli — <b>Afrika, Rusija in deli Azije</b> — ostajajo pretežno klasični še leta 2060. Ilustrativno — poanta je dinamika neenakomernega razvoja, ne natančna lega vozil.</div>
   </div>
 
   <div class="divider"><span>Interaktivna simulacija</span></div>
@@ -455,7 +455,7 @@
 </div>
 
 <script>
-/* Hero: world-map "wave of autonomy" — classic -> autonomous, spreading US -> China -> world */
+/* Hero: world-map "wave of autonomy" — conservative, US completes ~2045; poor regions stay largely classic */
 (function(){
   "use strict";
   const cv=document.getElementById('map'); if(!cv) return;
@@ -481,42 +481,43 @@
       for(let i=1;i<YEARS.length;i++){const frac=Math.min(Math.max((YEARS[i]-Y0)/(r.gsat-Y0),0),1);const g0=r.g0*MID.g,g1=r.g1*MID.g,g=g0+(g1-g0)*frac;D.push(D[i-1]*(1+g));}
       const pmax=Math.min(0.97,share*r.pmaxRel),kR=MID.k*r.kRel,t0=r.t0+MID.dt0,n0=r.n0*scale,N=[];
       for(let i=0;i<YEARS.length;i++){const phi=pmax/(1+Math.exp(-kR*(YEARS[i]-t0)));N.push(n0*D[i]*(1-phi*(1-1/MID.m)));}
-      Nmodel[r.id]={N,n0:N[0]};
+      Nmodel[r.id]={N};
     });
   })();
   const interp=(arr,yr)=>{const f=Math.min(Y1,Math.max(Y0,yr)),i=Math.floor(f-Y0),t=f-Y0-i;return i>=arr.length-1?arr[arr.length-1]:arr[i]+(arr[i+1]-arr[i])*t;};
 
-  // --- continents as polygons; reg drives fleet weight, center drives the wave timing ---
+  // continents: reg=fleet weight · c=wave centre year · k=autonomy ceiling (dev level)
   const POLY=[
-    {reg:'oecd',c:2030,p:[[-168,65],[-160,70],[-140,70],[-118,71],[-100,73],[-82,73],[-70,67],[-60,60],[-55,52],[-64,47],[-70,41],[-74,40],[-76,35],[-80,31],[-82,26],[-92,20],[-100,19],[-106,25],[-114,30],[-118,33],[-124,38],[-124,44],[-126,50],[-135,57],[-150,60],[-165,60]]},
-    {reg:'ice', c:2099,p:[[-45,60],[-30,60],[-18,68],[-22,76],[-38,82],[-52,80],[-53,70]]},
-    {reg:'rest',c:2037,p:[[-80,8],[-72,11],[-60,10],[-50,2],[-40,-4],[-35,-9],[-40,-18],[-48,-24],[-58,-34],[-66,-42],[-72,-50],[-74,-52],[-73,-44],[-71,-34],[-70,-24],[-72,-14],[-77,-6],[-81,2]]},
-    {reg:'oecd',c:2032.5,p:[[-10,36],[-9,43],[-4,48],[1,50],[-2,53],[3,58],[7,58],[11,63],[19,68],[27,70],[33,66],[31,60],[39,58],[43,52],[40,46],[30,45],[27,41],[19,40],[10,37],[0,36]]},
-    {reg:'rest',c:2038,p:[[28,42],[40,44],[48,42],[56,42],[66,44],[74,40],[70,33],[62,28],[55,25],[47,26],[43,32],[35,34],[29,37]]},
-    {reg:'cn',  c:2032,p:[[92,52],[100,53],[112,50],[122,48],[133,45],[128,39],[122,33],[120,27],[112,21],[103,22],[97,27],[92,34],[90,42]]},
-    {reg:'oecd',c:2032.5,p:[[128,34],[132,36],[136,35],[140,37],[142,41],[139,44],[135,40],[131,38]]},
-    {reg:'afr', c:2041,p:[[67,24],[70,30],[76,32],[84,29],[90,26],[92,22],[87,15],[80,7],[76,9],[71,16]]},
-    {reg:'afr', c:2043,p:[[-17,20],[-16,27],[-8,33],[9,37],[22,33],[32,31],[35,22],[43,11],[51,12],[48,2],[41,-4],[40,-14],[32,-26],[22,-34],[18,-34],[13,-22],[9,-2],[8,5],[-3,5],[-12,12]]},
-    {reg:'rest',c:2038,p:[[96,18],[100,20],[106,16],[109,10],[105,3],[99,4],[96,10]]},
-    {reg:'rest',c:2039,p:[[96,6],[104,2],[118,0],[132,-2],[142,-4],[150,-9],[138,-9],[120,-6],[104,-4],[96,1]]},
-    {reg:'oecd',c:2033,p:[[114,-22],[120,-18],[130,-12],[140,-12],[146,-18],[150,-28],[146,-38],[138,-38],[128,-32],[118,-33],[114,-27]]},
-    {reg:'oecd',c:2033,p:[[166,-46],[170,-42],[175,-38],[178,-41],[174,-46],[170,-48]]},
-    {reg:'rest',c:2039,p:[[30,60],[45,62],[60,60],[80,58],[100,58],[120,58],[140,62],[160,66],[180,68],[178,72],[150,73],[120,74],[95,76],[70,73],[48,70],[35,66]]},
+    {reg:'oecd',c:2041,k:1.00,p:[[-168,65],[-160,70],[-140,70],[-118,71],[-100,73],[-82,73],[-70,67],[-60,60],[-55,52],[-64,47],[-70,41],[-74,40],[-76,35],[-80,31],[-82,26],[-92,20],[-100,19],[-106,25],[-114,30],[-118,33],[-124,38],[-124,44],[-126,50],[-135,57],[-150,60],[-165,60]]},
+    {reg:'ice', c:2099,k:0.00,p:[[-45,60],[-30,60],[-18,68],[-22,76],[-38,82],[-52,80],[-53,70]]},
+    {reg:'rest',c:2053,k:0.60,p:[[-80,8],[-72,11],[-60,10],[-50,2],[-40,-4],[-35,-9],[-40,-18],[-48,-24],[-58,-34],[-66,-42],[-72,-50],[-74,-52],[-73,-44],[-71,-34],[-70,-24],[-72,-14],[-77,-6],[-81,2]]},
+    {reg:'oecd',c:2044,k:0.95,p:[[-10,36],[-9,43],[-4,48],[1,50],[-2,53],[3,58],[7,58],[11,63],[19,68],[27,70],[33,66],[31,60],[39,58],[43,52],[40,46],[30,45],[27,41],[19,40],[10,37],[0,36]]},
+    {reg:'rest',c:2056,k:0.48,p:[[28,42],[40,44],[48,42],[56,42],[66,44],[74,40],[70,33],[62,28],[55,25],[47,26],[43,32],[35,34],[29,37]]},
+    {reg:'cn',  c:2043,k:0.90,p:[[92,52],[100,53],[112,50],[122,48],[133,45],[128,39],[122,33],[120,27],[112,21],[103,22],[97,27],[92,34],[90,42]]},
+    {reg:'oecd',c:2044,k:1.00,p:[[128,34],[132,36],[136,35],[140,37],[142,41],[139,44],[135,40],[131,38]]},
+    {reg:'afr', c:2058,k:0.42,p:[[67,24],[70,30],[76,32],[84,29],[90,26],[92,22],[87,15],[80,7],[76,9],[71,16]]},
+    {reg:'afr', c:2061,k:0.38,p:[[-17,20],[-16,27],[-8,33],[9,37],[22,33],[32,31],[35,22],[43,11],[51,12],[48,2],[41,-4],[40,-14],[32,-26],[22,-34],[18,-34],[13,-22],[9,-2],[8,5],[-3,5],[-12,12]]},
+    {reg:'rest',c:2055,k:0.52,p:[[96,18],[100,20],[106,16],[109,10],[105,3],[99,4],[96,10]]},
+    {reg:'rest',c:2056,k:0.50,p:[[96,6],[104,2],[118,0],[132,-2],[142,-4],[150,-9],[138,-9],[120,-6],[104,-4],[96,1]]},
+    {reg:'oecd',c:2045,k:1.00,p:[[114,-22],[120,-18],[130,-12],[140,-12],[146,-18],[150,-28],[146,-38],[138,-38],[128,-32],[118,-33],[114,-27]]},
+    {reg:'oecd',c:2045,k:1.00,p:[[166,-46],[170,-42],[175,-38],[178,-41],[174,-46],[170,-48]]},
+    {reg:'rest',c:2061,k:0.30,p:[[30,60],[45,62],[60,60],[80,58],[100,58],[120,58],[140,62],[160,66],[180,68],[178,72],[150,73],[120,74],[95,76],[70,73],[48,70],[35,66]]},
   ];
   function inPoly(pts,x,y){let inside=false;for(let i=0,j=pts.length-1;i<pts.length;j=i++){const xi=pts[i][0],yi=pts[i][1],xj=pts[j][0],yj=pts[j][1];if(((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))inside=!inside;}return inside;}
   function hit(lon,lat){for(let i=0;i<POLY.length;i++)if(inPoly(POLY[i].p,lon,lat))return POLY[i];return null;}
 
-  const LAT_TOP=80, LAT_BOT=-56, LON_L=-170, LON_R=185;
-  let dots=[], regCount={oecd:0,cn:0,rest:0,afr:0};
+  const LAT_TOP=80, LAT_BOT=-56, LON_L=-170, LON_R=185, COLS=170, HW=5;
+  let land=[], ocean=[], regCount={oecd:0,cn:0,rest:0,afr:0};
   function buildDots(){
-    dots=[]; regCount={oecd:0,cn:0,rest:0,afr:0};
-    const cols=124, rows=Math.round(cols*0.46);
-    for(let c=0;c<cols;c++) for(let r=0;r<rows;r++){
-      const lon=LON_L+(c+0.5)/cols*(LON_R-LON_L);
-      const lat=LAT_TOP-(r+0.5)/rows*(LAT_TOP-LAT_BOT);
-      const P=hit(lon,lat); if(!P) continue;
-      const jitter=(Math.random()*2-1)*1.6;
-      dots.push({nx:(lon-LON_L)/(LON_R-LON_L), ny:(LAT_TOP-lat)/(LAT_TOP-LAT_BOT), reg:P.reg, center:P.c+jitter});
+    land=[]; ocean=[]; regCount={oecd:0,cn:0,rest:0,afr:0};
+    const rows=Math.round(COLS*0.46);
+    for(let c=0;c<COLS;c++) for(let r=0;r<rows;r++){
+      const lon=LON_L+(c+0.5)/COLS*(LON_R-LON_L), lat=LAT_TOP-(r+0.5)/rows*(LAT_TOP-LAT_BOT);
+      const nx=(lon-LON_L)/(LON_R-LON_L), ny=(LAT_TOP-lat)/(LAT_TOP-LAT_BOT);
+      const P=hit(lon,lat);
+      if(!P){ ocean.push({nx,ny}); continue; }
+      const jit=(Math.random()*2-1)*1.5;
+      land.push({nx,ny,reg:P.reg,center:P.c+jit,ceil:P.k});
       if(P.reg!=='ice') regCount[P.reg]++;
     }
   }
@@ -524,32 +525,39 @@
   let W=0,H=0,dpr=1,curYear=Y0;
   const padX=8,padY=8;
   const px=nx=>padX+nx*(W-2*padX), py=ny=>padY+ny*(H-2*padY);
-  function resize(){dpr=Math.min(window.devicePixelRatio||1,2);W=cv.clientWidth;H=Math.max(280,Math.round(W*0.46));cv.width=W*dpr;cv.height=H*dpr;cv.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0);draw(curYear);}
+  // static ocean layer
+  const oc=document.createElement('canvas'), octx=oc.getContext('2d');
+  function buildOcean(){ oc.width=W*dpr; oc.height=H*dpr; octx.setTransform(dpr,0,0,dpr,0,0); octx.clearRect(0,0,W,H);
+    const rad=Math.max(1,(W/COLS)*0.30); octx.fillStyle=css('--hair'); octx.globalAlpha=0.45;
+    for(let i=0;i<ocean.length;i++){ octx.beginPath();octx.arc(px(ocean[i].nx),py(ocean[i].ny),rad,0,7);octx.fill(); }
+    octx.globalAlpha=1;
+  }
+  function resize(){dpr=Math.min(window.devicePixelRatio||1,2);W=cv.clientWidth;H=Math.max(300,Math.round(W*0.48));cv.width=W*dpr;cv.height=H*dpr;cv.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0);buildOcean();draw(curYear);}
 
   function draw(year){
     ctx.clearRect(0,0,W,H);
-    const rad=Math.max(1.5,(W/124)*0.42);
-    const cC=hexRgb(css('--car-classic')), cA=hexRgb(css('--car-auto')), gh=css('--ghost');
-    for(let i=0;i<dots.length;i++){ const d=dots[i], x=px(d.nx), y=py(d.ny);
-      if(d.reg==='ice'){ ctx.globalAlpha=.13; ctx.fillStyle=gh; ctx.beginPath();ctx.arc(x,y,rad*.8,0,7);ctx.fill(); continue; }
-      const s=ss(d.center-3, d.center+3, year);
+    ctx.drawImage(oc,0,0,W,H);
+    const rad=Math.max(1.3,(W/COLS)*0.42);
+    const cC=hexRgb(css('--car-classic')), cA=hexRgb(css('--car-auto'));
+    for(let i=0;i<land.length;i++){ const d=land[i]; if(d.reg==='ice') continue;
+      const x=px(d.nx), y=py(d.ny);
+      const s=d.ceil*ss(d.center-HW, d.center+HW, year);
       const r=Math.round(cC[0]+(cA[0]-cC[0])*s), g=Math.round(cC[1]+(cA[1]-cC[1])*s), b=Math.round(cC[2]+(cA[2]-cC[2])*s);
-      ctx.globalAlpha=0.55+0.45*s;
+      ctx.globalAlpha=0.72+0.28*s;
       ctx.fillStyle='rgb('+r+','+g+','+b+')';
-      ctx.beginPath(); ctx.arc(x,y,rad*(0.9+0.22*s),0,7); ctx.fill();
+      ctx.beginPath(); ctx.arc(x,y,rad*(0.92+0.20*s),0,7); ctx.fill();
     }
     ctx.globalAlpha=1;
-    ctx.font='800 clamp(26px,4vw,38px) ui-sans-serif, system-ui, sans-serif';
-    ctx.textAlign='left'; ctx.textBaseline='top'; ctx.fillStyle=css('--ink'); ctx.globalAlpha=.92;
+    ctx.font='800 clamp(28px,4.4vw,42px) ui-sans-serif, system-ui, sans-serif';
+    ctx.textAlign='left'; ctx.textBaseline='top'; ctx.fillStyle=css('--ink'); ctx.globalAlpha=.9;
     ctx.fillText(Math.round(year), padX+4, padY+2); ctx.globalAlpha=1;
     stats(year);
   }
   function stats(year){
-    // fleet weight per region scales with model; split classic/auto by the visual wave
     const scaleR={}; RB.forEach(r=>{scaleR[r.id]=interp(Nmodel[r.id].N,year)/Math.max(1,regCount[r.id]);});
     let cls=0, ai=0;
-    for(let i=0;i<dots.length;i++){ const d=dots[i]; if(d.reg==='ice') continue;
-      const w=scaleR[d.reg], s=ss(d.center-3,d.center+3,year); cls+=w*(1-s); ai+=w*s; }
+    for(let i=0;i<land.length;i++){ const d=land[i]; if(d.reg==='ice') continue;
+      const w=scaleR[d.reg], s=d.ceil*ss(d.center-HW,d.center+HW,year); cls+=w*(1-s); ai+=w*s; }
     const tot=cls+ai||1;
     el('mapStats').innerHTML=
       '<span class="chip"><i class="d" style="background:'+css('--car-classic')+'"></i>Klasični <b>'+cls.toFixed(2)+'</b> mrd</span>'+
@@ -559,11 +567,11 @@
   function legend(){ const dot=c=>'<i class="ln" style="border:0;width:11px;height:11px;border-radius:50%;background:'+css(c)+'"></i> ';
     el('mapLegend').innerHTML='<span>'+dot('--car-classic')+'klasični avtomobil</span><span>'+dot('--car-auto')+'avtonomni avtomobil</span>'; }
 
-  let playing=false, rafId=null, lastTs=0; const SPEED=7;
-  function tick(ts){ if(!lastTs)lastTs=ts; const dt=(ts-lastTs)/1000; lastTs=ts;
+  let playing=false, rafId=null, lastTs=0; const SPEED=3; // years/second (slower)
+  function tick(ts){ if(!lastTs)lastTs=ts; const dt=Math.min(0.1,(ts-lastTs)/1000); lastTs=ts;
     if(playing){ curYear+=dt*SPEED;
       if(curYear>=Y1){ curYear=Y1; el('mapYear').value=Y1; draw(curYear); playing=false; el('mapPlay').textContent='▸ predvajaj znova';
-        setTimeout(()=>{ if(!playing && Math.round(curYear)>=Y1){ curYear=Y0; playing=true; el('mapPlay').textContent='⏸ pavza'; lastTs=0; rafId=requestAnimationFrame(tick);} },1500); return; }
+        setTimeout(()=>{ if(!playing && Math.round(curYear)>=Y1){ curYear=Y0; playing=true; el('mapPlay').textContent='⏸ pavza'; lastTs=0; rafId=requestAnimationFrame(tick);} },2000); return; }
       el('mapYear').value=Math.round(curYear); draw(curYear);
     }
     rafId=requestAnimationFrame(tick);
@@ -573,8 +581,8 @@
     if(playing){playing=false;el('mapPlay').textContent='▸ predvajaj';if(rafId){cancelAnimationFrame(rafId);rafId=null;}} else startLoop(); });
   el('mapYear').addEventListener('input',()=>{ playing=false; if(rafId){cancelAnimationFrame(rafId);rafId=null;} el('mapPlay').textContent='▸ predvajaj'; curYear=+el('mapYear').value; draw(curYear); });
   window.addEventListener('resize',resize);
-  new MutationObserver(()=>{legend();draw(curYear);}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{legend();draw(curYear);});
+  new MutationObserver(()=>{legend();buildOcean();draw(curYear);}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{legend();buildOcean();draw(curYear);});
 
   buildDots(); legend(); resize();
   if(reduce){ curYear=2045; el('mapYear').value=2045; draw(2045); el('mapPlay').textContent='▸ predvajaj'; }
