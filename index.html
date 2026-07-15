@@ -93,6 +93,29 @@
   .leadcap{font-size:12px;color:var(--muted);margin:6px 2px 2px;line-height:1.5;max-width:80ch}
   .leadcap b{color:var(--ink);font-weight:600}
 
+  /* World-map wave */
+  .mapwrap{border:1px solid var(--hair);background:var(--surface);border-radius:14px;padding:14px 16px 12px;margin:16px 0 6px;position:relative}
+  #map{margin-top:6px;background:var(--surface);border-radius:8px}
+  #mapYear{width:100%;margin:8px 0 2px}
+  .mapstats{display:flex;gap:9px;flex-wrap:wrap;margin:6px 2px 2px}
+  .mapstats .chip{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted);background:var(--surface-2);border:1px solid var(--hair);border-radius:999px;padding:5px 11px}
+  .mapstats .chip b{color:var(--ink);font-weight:700;font-family:"JetBrains Mono",monospace}
+  .mapstats .chip .d{width:9px;height:9px;border-radius:50%;flex:none}
+
+  /* Evidence section */
+  .evidence{margin-top:42px}
+  .evgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0 10px}
+  .evcard{border:1px solid var(--hair);background:var(--surface);border-radius:12px;padding:15px 16px;display:flex;flex-direction:column;gap:6px}
+  .evcard .tagrow{display:flex;justify-content:space-between;align-items:center;gap:8px;font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase}
+  .evcard .reg{color:var(--signal);font-weight:700}
+  .evcard .yr{color:var(--muted)}
+  .evcard h3{font-family:"Archivo",sans-serif;font-weight:800;font-size:15.5px;letter-spacing:-.01em;margin:2px 0 0}
+  .evcard p{font-size:13px;color:var(--muted);margin:0;line-height:1.5}
+  .evcard .src{margin-top:auto;padding-top:4px;font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--ghost);letter-spacing:.03em}
+  .synth{border-left:3px solid var(--steel);background:var(--surface);padding:15px 17px;border-radius:0 10px 10px 0;font-size:14px;line-height:1.6;margin-top:12px;max-width:84ch}
+  .synth b{color:var(--ink)}
+  @media(max-width:760px){ .evgrid{grid-template-columns:1fr} }
+
   .divider{display:flex;align-items:center;gap:14px;margin:34px 0 6px}
   .divider::before,.divider::after{content:"";height:1px;background:var(--hair);flex:1}
   .divider span{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
@@ -217,19 +240,19 @@
     </div>
   </div>
 
-  <div class="leadwrap">
+  <div class="mapwrap">
     <div class="leadhead">
       <div>
-        <div class="t">Dirka za avtonomijo — kdo vodi</div>
-        <div class="s">delež novih vozil z visoko avtonomno zmožnostjo · 2025–2036</div>
+        <div class="t">Val avtonomije — srednji scenarij, 2025 → 2060</div>
+        <div class="s">vsaka pika ≈ del svetovnega voznega parka · temne = klasični · barvne = avtonomni</div>
       </div>
-      <button class="replay" id="leadReplay" type="button">▸ predvajaj znova</button>
+      <button class="replay" id="mapPlay" type="button">⏸ pavza</button>
     </div>
-    <canvas id="lead" height="300"></canvas>
-    <div class="leadlegend" id="leadLegend"></div>
-    <div class="leadcap">
-      <b>Kitajska</b> (Zeekr, Baidu Apollo Go, BYD) in <b>ZDA</b> (Waymo, Tesla FSD) vlečeta naprej; <b>Zahodna Evropa</b> sledi tik za njima (EU homologacija FSD 2026, Mercedes L3), <b>ostali svet</b> zaostaja. Ilustrativne krivulje sprejemanja — poanta je oblika, ne natančen odstotek.
-    </div>
+    <canvas id="map" height="440"></canvas>
+    <input type="range" id="mapYear" min="2025" max="2060" step="1" value="2025" aria-label="Leto simulacije">
+    <div class="mapstats" id="mapStats"></div>
+    <div class="leadlegend" id="mapLegend"></div>
+    <div class="leadcap">Prikaz <b>srednjega scenarija</b> simulacije spodaj: avtonomna vozila (barvne pike po regijah) postopoma prevzemajo, klasični avtomobili (temne pike) izginjajo. Val se širi od vodilnih trgov (Kitajska, ZDA, Zahodna Evropa) navzven; svetovni park doseže vrh okoli 2037 in nato upada. Ilustrativno — poanta je dinamika, ne natančna lega vozil.</div>
   </div>
 
   <div class="divider"><span>Interaktivna simulacija</span></div>
@@ -342,6 +365,55 @@
     <b>Pošten pridržek:</b> vrh sproži <b>deljenje</b>, ne avtonomija sama — zasebno avtonomno vozilo zniža park le za okoli desetino. In manj <b>vozil</b> ne pomeni manj <b>kilometrov</b>: zaradi praznih voženj skupni prevoženi kilometri lahko narastejo, tudi ko število avtomobilov upada. Zato ločimo dve krivulji — <b>lastništvo</b> (pade) in <b>cestno obremenitev</b> (lahko naraste). Teza »obstoječe ceste zadoščajo« velja le, kadar prepustnost raste hitreje od kilometrov; z drsnikoma <i>prazne vožnje</i> in <i>pridobitev prepustnosti</i> jo lahko obrneš v rdeče.
   </div>
 
+  <section class="evidence">
+    <div class="divider"><span>Dejstva · zakaj to ni znanstvena fantastika</span></div>
+    <h2 class="toolhead">D-day je tukaj: tehnologija že deluje</h2>
+    <p class="lead" style="font-size:15px;color:var(--muted);margin-bottom:4px">Projekcije zgoraj ne stojijo na obljubah, ampak na sistemih, ki <b style="color:var(--ink)">vozijo danes</b>. Spodaj so mejniki integracije tehnologije — dokaz, da je temeljni del rešen; odprta so še vprašanja obsega, cene, regulacije in deljenja, ki so drsniki v simulaciji.</p>
+
+    <div class="evgrid">
+      <article class="evcard">
+        <div class="tagrow"><span class="reg">ZDA · Waymo</span><span class="yr">deluje</span></div>
+        <h3>Vožnja brez voznika, vsak dan</h3>
+        <p>Waymo prevaža plačljive potnike brez voznika po San Franciscu, Phoenixu, Los Angelesu in Austinu — več sto tisoč voženj na teden. Polna avtonomija (L4) na javnih cestah ni prototip, ampak storitev.</p>
+        <div class="src">Vir: Waymo</div>
+      </article>
+      <article class="evcard">
+        <div class="tagrow"><span class="reg">ZDA · Tesla</span><span class="yr">A → B</span></div>
+        <h3>FSD od vrat do vrat</h3>
+        <p>Tesla FSD (Supervised) samodejno pelje od točke A do točke B na skoraj vseh cestah — voznik le nadzoruje. Leta 2025 je Tesla v Austinu zagnala prvi robotaxi pilot. Danes L2, pot proti brezvoznemu jutri.</p>
+        <div class="src">Vir: Tesla</div>
+      </article>
+      <article class="evcard">
+        <div class="tagrow"><span class="reg">Platforma · NVIDIA</span><span class="yr">sklad</span></div>
+        <h3>Cela platforma za avtonomijo</h3>
+        <p>NVIDIA je predstavila celovit sklad za avtonomno vožnjo (DRIVE Thor / Hyperion) — računalnik, senzorika in programska oprema, ki jih proizvajalci vgradijo v serijska vozila. Integracija tehnologije, ne le posamezen model.</p>
+        <div class="src">Vir: NVIDIA</div>
+      </article>
+      <article class="evcard">
+        <div class="tagrow"><span class="reg">Kitajska · Baidu</span><span class="yr">več mest</span></div>
+        <h3>Apollo Go brez voznika</h3>
+        <p>Baidujev Apollo Go vozi robotaksije brez voznika v več kitajskih mestih (Wuhan, Peking, Chongqing …) in je med največjimi flotami na svetu. Kitajska hitro širi dovoljenja za brezvozno vožnjo.</p>
+        <div class="src">Vir: Baidu Apollo</div>
+      </article>
+      <article class="evcard">
+        <div class="tagrow"><span class="reg">Kitajska · XPeng, Zeekr</span><span class="yr">flota</span></div>
+        <h3>Robotaksiji v seriji</h3>
+        <p>XPeng je napovedal lastno floto avtonomnih robotaksijev, Zeekr (Geely) pa gradi namensko robotaxi vozilo. Kitajski proizvajalci avtonomijo vgrajujejo naravnost v serijsko proizvodnjo.</p>
+        <div class="src">Vir: XPeng, Zeekr</div>
+      </article>
+      <article class="evcard">
+        <div class="tagrow"><span class="reg">Evropa · EU, Mercedes</span><span class="yr">2026</span></div>
+        <h3>Vrata EU se odpirajo</h3>
+        <p>Nizozemski RDW je 2026 izdal EU homologacijo za Teslin FSD (Supervised, L2); Mercedes Drive Pilot že ponuja pogojno avtonomijo (L3) na avtocestah v Nemčiji in delu ZDA. Regulacija dohiteva tehnologijo.</p>
+        <div class="src">Vir: RDW, Mercedes-Benz</div>
+      </article>
+    </div>
+
+    <div class="synth">
+      <b>Bistvo:</b> vprašanje ni več <i>ali</i> tehnologija deluje — deluje že danes. Odprta ostajajo vprašanja <b>obsega, cene, regulacije in deljenja</b>. Prav ta so drsniki v simulaciji zgoraj: kako hitro se uveljavi (S-krivulja), koliko voženj postane deljenih (glavni vzvod) in ali prepustnost cest raste hitreje od kilometrov. Dejstva na tej strani napajajo predpostavke modela — vse naprej je poštena <b>projekcija</b> s pogledom v prihodnost, ne napoved.
+    </div>
+  </section>
+
   <footer>
     Model: N(t) = Σᵣ N₀ᵣ · Dᵣ(t) · [1 − φᵣ(t)·(1 − 1/m)] &nbsp;·&nbsp; L(t) = Σ wᵣ·VKTᵣ / Σ wᵣ·Capᵣ<br>
     4 regije · Viri: ITF/OECD (Lizbona, Helsinki), RethinkX (Seba), S&amp;P Global Mobility, PATH/Berkeley, Litman/VTPI · Podlaga: <a href="docs/temeljna-analiza.md">docs/temeljna-analiza.md</a>
@@ -349,72 +421,148 @@
 </div>
 
 <script>
-/* Hero: leading-markets adoption race (animated on load / on view) */
+/* Hero: world-map "wave of autonomy" — mid scenario, dots = cars */
 (function(){
   "use strict";
-  const cv=document.getElementById('lead'); if(!cv) return;
+  const cv=document.getElementById('map'); if(!cv) return;
   const ctx=cv.getContext('2d');
+  const el=id=>document.getElementById(id);
   const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const Y0=2025, Y1=2036, N=64;
-  const markets=[
-    {name:'Kitajska',       tag:'Zeekr · Baidu', css:'--r2', pmax:88, k:0.95, t0:2029.7},
-    {name:'ZDA',            tag:'Waymo · Tesla', css:'--r1', pmax:82, k:0.88, t0:2030.3},
-    {name:'Zahodna Evropa', tag:'EU · Mercedes', css:'--r3', pmax:70, k:0.80, t0:2031.6},
-    {name:'Ostali svet',    tag:'',                        css:null,   pmax:38, k:0.70, t0:2034.0},
-  ];
   const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-  const col=m=>m.css?css(m.css):css('--ghost');
-  const val=(m,y)=>m.pmax/(1+Math.exp(-m.k*(y-m.t0)));
-  let W=0,H=300,dpr=1,prog=0,raf=null,start=0;
-  const padL=42,padR=150,padT=16,padB=28;
-  const xOf=y=>padL+(y-Y0)/(Y1-Y0)*(W-padL-padR);
-  const yOf=v=>padT+(H-padT-padB)-(v/100)*(H-padT-padB);
 
-  function draw(){
-    const w=W-padL-padR,h=H-padT-padB;
-    ctx.clearRect(0,0,W,H);
-    ctx.font='11px ui-monospace, monospace'; ctx.textBaseline='middle';
-    ctx.strokeStyle=css('--hair'); ctx.lineWidth=1;
-    for(let p=0;p<=100;p+=25){ const yy=yOf(p);
-      ctx.globalAlpha=p===0?0.9:0.4; ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(padL+w,yy);ctx.stroke();
-      ctx.globalAlpha=1; ctx.fillStyle=css('--muted'); ctx.textAlign='right'; ctx.fillText(p+' %',padL-7,yy); }
-    ctx.textAlign='center'; ctx.textBaseline='top'; ctx.fillStyle=css('--muted');
-    for(const yr of [2025,2028,2031,2034,2036]) ctx.fillText(yr,xOf(yr),padT+h+8);
-
-    const cut=Y0+(Y1-Y0)*prog;
-    markets.forEach(m=>{
-      ctx.strokeStyle=col(m); ctx.lineWidth=m.css?3:2; ctx.lineJoin='round';
-      ctx.setLineDash(m.css?[]:[5,5]);
-      let lx=padL,ly=yOf(0),drew=false; ctx.beginPath();
-      for(let i=0;i<=N;i++){ const y=Y0+(Y1-Y0)*i/N; if(y>cut) break;
-        const xx=xOf(y),yy=yOf(val(m,y)); drew?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy); drew=true; lx=xx; ly=yy; }
-      ctx.stroke(); ctx.setLineDash([]);
-      if(drew){ ctx.fillStyle=col(m); ctx.beginPath();ctx.arc(lx,ly,m.css?4:3,0,7);ctx.fill();
-        ctx.fillStyle=css('--surface'); ctx.beginPath();ctx.arc(lx,ly,1.4,0,7);ctx.fill(); }
+  const Y0=2025, Y1=2060, YEARS=[]; for(let y=Y0;y<=Y1;y++) YEARS.push(y);
+  const REGCSS={oecd:'--r1', cn:'--r2', rest:'--r3', afr:'--r4'};
+  const RB=[
+    {id:'oecd', n0:0.62, g0:0.005,g1:0.000,gsat:2036, pmaxRel:1.00,t0:2039,kRel:1.00},
+    {id:'cn',   n0:0.34, g0:0.026,g1:0.003,gsat:2044, pmaxRel:1.02,t0:2041,kRel:1.06},
+    {id:'rest', n0:0.42, g0:0.031,g1:0.006,gsat:2052, pmaxRel:0.86,t0:2047,kRel:0.90},
+    {id:'afr',  n0:0.22, g0:0.050,g1:0.018,gsat:2062, pmaxRel:0.80,t0:2051,kRel:0.85},
+  ];
+  const MID={share:80,m:5.0,dt0:3,k:0.26,g:1.10,n0:1.60};
+  const model={};
+  (function(){
+    const scale=MID.n0/1.60, share=MID.share/100;
+    RB.forEach(r=>{
+      const D=[1];
+      for(let i=1;i<YEARS.length;i++){ const frac=Math.min(Math.max((YEARS[i]-Y0)/(r.gsat-Y0),0),1);
+        const g0=r.g0*MID.g, g1=r.g1*MID.g, g=g0+(g1-g0)*frac; D.push(D[i-1]*(1+g)); }
+      const pmax=Math.min(0.97,share*r.pmaxRel), kR=MID.k*r.kRel, t0=r.t0+MID.dt0, n0=r.n0*scale;
+      const N=[],ai=[];
+      for(let i=0;i<YEARS.length;i++){ const phi=pmax/(1+Math.exp(-kR*(YEARS[i]-t0)));
+        N.push(n0*D[i]*(1-phi*(1-1/MID.m))); ai.push(Math.min(0.97,phi/pmax)); }
+      model[r.id]={N,ai,cap:Math.max.apply(null,N)};
     });
-    if(prog>0.985){
-      const labs=markets.map(m=>({m,y:yOf(val(m,Y1))})).sort((a,b)=>a.y-b.y); const placed=[];
-      labs.forEach(o=>{ let yy=o.y; for(const p of placed) if(Math.abs(yy-p)<24) yy=p+24; placed.push(yy);
-        const x=padL+w+9;
-        ctx.fillStyle=col(o.m); ctx.beginPath();ctx.arc(x,yy-4,3.5,0,7);ctx.fill();
-        ctx.textAlign='left'; ctx.textBaseline='middle';
-        ctx.font='700 12px ui-sans-serif, system-ui, sans-serif'; ctx.fillStyle=css('--ink'); ctx.fillText(o.m.name,x+10,yy-4);
-        if(o.m.tag){ ctx.font='10px ui-monospace, monospace'; ctx.fillStyle=css('--muted'); ctx.fillText(o.m.tag,x+10,yy+8); }
-      });
+  })();
+  function interp(arr,yr){ const f=Math.min(Y1,Math.max(Y0,yr)), i=Math.floor(f-Y0), t=f-Y0-i;
+    return i>=arr.length-1?arr[arr.length-1]:arr[i]+(arr[i+1]-arr[i])*t; }
+
+  // continents as ellipses in (lon,lat); specific shapes first, broad last
+  const ELL=[
+    [140,39,7,10,'oecd'],[108,34,17,13,'cn'],[78,21,10,12,'afr'],[12,50,20,14,'oecd'],
+    [45,26,13,11,'rest'],[65,45,22,10,'rest'],[134,-25,16,11,'oecd'],[172,-42,4,5,'oecd'],
+    [-88,16,9,8,'rest'],[112,6,16,10,'rest'],[-140,62,14,10,'oecd'],[-100,48,26,20,'oecd'],
+    [-62,-18,15,25,'rest'],[18,2,22,30,'afr'],[95,61,60,14,'rest'],
+  ];
+  function regionAt(lon,lat){ for(let i=0;i<ELL.length;i++){ const e=ELL[i], dx=(lon-e[0])/e[2], dy=(lat-e[1])/e[3];
+    if(dx*dx+dy*dy<=1) return e[4]; } return null; }
+
+  const LAT_TOP=80, LAT_BOT=-58, LON_L=-170, LON_R=185;
+  let byReg={oecd:[],cn:[],rest:[],afr:[]}, cellCount={}, totDots=0, carsPerDot=1;
+  function buildDots(){
+    byReg={oecd:[],cn:[],rest:[],afr:[]}; totDots=0;
+    const cols=104, rows=Math.round(cols*0.46);
+    for(let c=0;c<cols;c++) for(let r=0;r<rows;r++){
+      const lon=LON_L+(c+0.5)/cols*(LON_R-LON_L);
+      const lat=LAT_TOP-(r+0.5)/rows*(LAT_TOP-LAT_BOT);
+      const rg=regionAt(lon,lat); if(!rg) continue;
+      byReg[rg].push({nx:(lon-LON_L)/(LON_R-LON_L), ny:(LAT_TOP-lat)/(LAT_TOP-LAT_BOT), q:Math.random()});
+      totDots++;
     }
+    for(const k in byReg){ byReg[k].sort((a,b)=>a.q-b.q); cellCount[k]=byReg[k].length; }
+    const tot2025=RB.reduce((s,r)=>s+model[r.id].N[0],0);
+    carsPerDot=tot2025/(0.60*Math.max(1,totDots));
   }
-  function anim(ts){ if(!start)start=ts; const t=Math.min(1,(ts-start)/1800); prog=1-Math.pow(1-t,3); draw(); raf=t<1?requestAnimationFrame(anim):null; }
-  function play(){ if(reduce){prog=1;draw();return;} start=0; if(raf)cancelAnimationFrame(raf); raf=requestAnimationFrame(anim); }
-  function resize(){ dpr=Math.min(window.devicePixelRatio||1,2); W=cv.clientWidth; H=300; cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0); draw(); }
-  function legend(){ document.getElementById('leadLegend').innerHTML=markets.map(m=>'<span><i class="ln" style="border-color:'+col(m)+'"></i> '+m.name+'</span>').join(''); }
+
+  let W=0,H=0,dpr=1,curYear=Y0;
+  const padX=10,padY=10;
+  const px=nx=>padX+nx*(W-2*padX), py=ny=>padY+ny*(H-2*padY);
+  function resize(){ dpr=Math.min(window.devicePixelRatio||1,2); W=cv.clientWidth; H=Math.max(280,Math.round(W*0.46));
+    cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px'; ctx.setTransform(dpr,0,0,dpr,0,0); draw(curYear); }
+
+  function draw(year){
+    ctx.clearRect(0,0,W,H);
+    const rad=Math.max(1.5,(W/104)*0.40), dark=css('--ink'), off=css('--ghost');
+    RB.forEach(r=>{
+      const N=interp(model[r.id].N,year), ai=interp(model[r.id].ai,year), arr=byReg[r.id], cc=cellCount[r.id]||1;
+      const litCount=Math.round(Math.min(1,N/carsPerDot/cc)*cc);
+      const aiCount=Math.round(litCount*ai);
+      const color=css(REGCSS[r.id]);
+      for(let i=0;i<arr.length;i++){ const d=arr[i], x=px(d.nx), y=py(d.ny);
+        let fill,alpha,rr=rad;
+        if(i<aiCount){ fill=color; alpha=1; rr=rad*1.06; }
+        else if(i<litCount){ fill=dark; alpha=0.70; }
+        else { fill=off; alpha=0.09; rr=rad*0.78; }
+        ctx.globalAlpha=alpha; ctx.fillStyle=fill;
+        ctx.beginPath(); ctx.arc(x,y,rr,0,7); ctx.fill();
+      }
+    });
+    ctx.globalAlpha=1;
+    ctx.font='800 clamp(26px,4vw,38px) ui-sans-serif, system-ui, sans-serif';
+    ctx.textAlign='left'; ctx.textBaseline='top'; ctx.fillStyle=css('--ink'); ctx.globalAlpha=.92;
+    ctx.fillText(Math.round(year), padX+4, padY+2); ctx.globalAlpha=1;
+    stats(year);
+  }
+  function stats(year){
+    let cls=0,ai=0; RB.forEach(r=>{ const N=interp(model[r.id].N,year), a=interp(model[r.id].ai,year); cls+=N*(1-a); ai+=N*a; });
+    const tot=cls+ai||1;
+    el('mapStats').innerHTML=
+      '<span class="chip"><i class="d" style="background:'+css('--ink')+'"></i>Klasični <b>'+cls.toFixed(2)+'</b> mrd</span>'+
+      '<span class="chip"><i class="d" style="background:'+css('--r2')+'"></i>Avtonomni <b>'+ai.toFixed(2)+'</b> mrd</span>'+
+      '<span class="chip">Skupaj <b>'+tot.toFixed(2)+'</b> mrd · delež AI <b>'+Math.round(ai/tot*100)+' %</b></span>';
+  }
+  function legend(){
+    const dot=c=>'<i class="ln" style="border:0;width:11px;height:11px;border-radius:50%;background:'+css(c)+'"></i> ';
+    el('mapLegend').innerHTML=
+      '<span>'+dot('--ink')+'klasični</span>'+
+      '<span>'+dot('--r1')+'avtonomni · razviti</span>'+
+      '<span>'+dot('--r2')+'Kitajska</span>'+
+      '<span>'+dot('--r3')+'ostali</span>'+
+      '<span>'+dot('--r4')+'Afrika + J. Azija</span>';
+  }
+
+  let playing=false, rafId=null, lastTs=0;
+  const SPEED=7; // years/second
+  function tick(ts){ if(!lastTs)lastTs=ts; const dt=(ts-lastTs)/1000; lastTs=ts;
+    if(playing){ curYear+=dt*SPEED;
+      if(curYear>=Y1){ curYear=Y1; el('mapYear').value=Y1; draw(curYear);
+        playing=false; el('mapPlay').textContent='▸ predvajaj znova';
+        setTimeout(()=>{ if(!playing && Math.round(curYear)>=Y1){ curYear=Y0; playing=true; el('mapPlay').textContent='⏸ pavza'; lastTs=0; rafId=requestAnimationFrame(tick); } }, 1500);
+        return;
+      }
+      el('mapYear').value=Math.round(curYear); draw(curYear);
+    }
+    rafId=requestAnimationFrame(tick);
+  }
+  function startLoop(){ if(rafId)cancelAnimationFrame(rafId); playing=true; el('mapPlay').textContent='⏸ pavza'; lastTs=0; rafId=requestAnimationFrame(tick); }
+
+  el('mapPlay').addEventListener('click',()=>{
+    if(Math.round(curYear)>=Y1) curYear=Y0;
+    if(playing){ playing=false; el('mapPlay').textContent='▸ predvajaj'; if(rafId)cancelAnimationFrame(rafId), rafId=null; }
+    else startLoop();
+  });
+  el('mapYear').addEventListener('input',()=>{ playing=false; if(rafId){cancelAnimationFrame(rafId);rafId=null;}
+    el('mapPlay').textContent='▸ predvajaj'; curYear=+el('mapYear').value; draw(curYear); });
   window.addEventListener('resize',resize);
-  document.getElementById('leadReplay').addEventListener('click',play);
-  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{legend();draw();});
-  new MutationObserver(()=>{legend();draw();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
-  legend(); resize();
-  let seen=false;
-  if('IntersectionObserver' in window){ const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting&&!seen){seen=true;play();} }),{threshold:0.35}); io.observe(cv); }
-  else play();
+  new MutationObserver(()=>{legend();draw(curYear);}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{legend();draw(curYear);});
+
+  buildDots(); legend(); resize();
+  if(reduce){ curYear=2045; el('mapYear').value=2045; draw(2045); el('mapPlay').textContent='▸ predvajaj'; }
+  else {
+    let seen=false;
+    if('IntersectionObserver' in window){ const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting&&!seen){seen=true; startLoop();} }),{threshold:0.2}); io.observe(cv); }
+    else startLoop();
+  }
 })();
 </script>
 
