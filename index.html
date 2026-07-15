@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="sl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vrh avtomobilov — regionalna simulacija deljene avtonomije</title>
+<meta name="description" content="Interaktivna simulacija svetovnega voznega parka: kdaj po regijah nastopi vrh avtomobilov in ali obstoječe ceste zdržijo promet deljene avtonomije.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme:light;
+    --paper:#E7EBEF;
+    --surface:#F4F6F8;
+    --surface-2:#EBEFF3;
+    --ink:#13171A;
+    --muted:#5C6870;
+    --hair:#C6CFD5;
+    --ghost:#A2AEB6;
+    --steel:#2F6C90;
+    --signal:#E1512A;
+    --signal-wash:rgba(225,81,42,.07);
+    /* region categorical palette (validated, light) */
+    --r1:#2a78d6; --r2:#008300; --r3:#e87ba4; --r4:#eda100;
+    --r1-fill:rgba(42,120,214,.26); --r2-fill:rgba(0,131,0,.24);
+    --r3-fill:rgba(232,123,164,.30); --r4-fill:rgba(237,161,0,.30);
+    /* status (fixed, never themed) */
+    --good:#0ca30c; --warn:#E08A00; --crit:#d03b3b;
+    --good-wash:rgba(12,163,12,.10); --crit-wash:rgba(208,59,59,.09);
+  }
+  :root[data-theme="dark"], :root:where(:not([data-theme="light"])){}
+  @media (prefers-color-scheme: dark){
+    :root:where(:not([data-theme="light"])){
+      color-scheme:dark;
+      --paper:#121517; --surface:#191C1F; --surface-2:#22262A;
+      --ink:#EEF2F5; --muted:#9BA7AF; --hair:#333A40; --ghost:#5E6B73;
+      --steel:#6FA8CC; --signal:#F0784E; --signal-wash:rgba(240,120,78,.10);
+      --r1:#3987e5; --r2:#2ba32b; --r3:#d55181; --r4:#c98500;
+      --r1-fill:rgba(57,135,229,.30); --r2-fill:rgba(43,163,43,.26);
+      --r3-fill:rgba(213,81,129,.30); --r4-fill:rgba(201,133,0,.32);
+      --good-wash:rgba(12,163,12,.14); --crit-wash:rgba(208,59,59,.14);
+    }
+  }
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --paper:#121517; --surface:#191C1F; --surface-2:#22262A;
+    --ink:#EEF2F5; --muted:#9BA7AF; --hair:#333A40; --ghost:#5E6B73;
+    --steel:#6FA8CC; --signal:#F0784E; --signal-wash:rgba(240,120,78,.10);
+    --r1:#3987e5; --r2:#2ba32b; --r3:#d55181; --r4:#c98500;
+    --r1-fill:rgba(57,135,229,.30); --r2-fill:rgba(43,163,43,.26);
+    --r3-fill:rgba(213,81,129,.30); --r4-fill:rgba(201,133,0,.32);
+    --good-wash:rgba(12,163,12,.14); --crit-wash:rgba(208,59,59,.14);
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--paper);color:var(--ink);
+    font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5;
+  }
+  .wrap{max-width:1120px;margin:0 auto;padding:26px 22px 60px}
+
+  .topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+  .eyebrow{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+  h1{font-family:"Archivo",sans-serif;font-weight:800;font-size:clamp(26px,4.4vw,42px);line-height:1.03;letter-spacing:-.02em;margin:.28em 0 .12em}
+  .sub{color:var(--muted);max-width:64ch;font-size:15px}
+  .themebtn{flex:none;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+    padding:8px 12px;border:1px solid var(--hair);background:var(--surface);color:var(--muted);border-radius:999px;cursor:pointer}
+  .themebtn:hover{border-color:var(--ink);color:var(--ink)}
+
+  /* Readout */
+  .readout{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:0;border:1px solid var(--hair);background:var(--surface);border-radius:14px;overflow:hidden;margin:22px 0 14px}
+  .cell{padding:15px 18px;border-right:1px solid var(--hair)}
+  .cell:last-child{border-right:0}
+  .cell .k{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted)}
+  .cell .v{font-family:"Archivo",sans-serif;font-weight:800;letter-spacing:-.01em;margin-top:4px;line-height:1}
+  .cell.hero .v{font-size:clamp(38px,6.4vw,58px);color:var(--signal)}
+  .cell .v.small{font-size:clamp(21px,3.2vw,28px)}
+  .cell .u{font-size:12px;color:var(--muted);font-family:"JetBrains Mono",monospace;margin-top:6px}
+
+  /* Road status strip */
+  .roadstrip{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border:1px solid var(--hair);background:var(--surface);border-radius:12px;padding:12px 16px;margin-bottom:16px}
+  .roadstrip .dot{width:11px;height:11px;border-radius:50%;flex:none}
+  .roadstrip .lab{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .roadstrip .stat{font-family:"Archivo",sans-serif;font-weight:800;font-size:15px}
+  .roadstrip .num{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:14px}
+  .roadstrip .sep{width:1px;align-self:stretch;background:var(--hair)}
+
+  /* View toggle */
+  .viewtabs{display:flex;gap:6px;margin:2px 0 10px}
+  .viewtabs button{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.03em;padding:8px 15px;border:1px solid var(--hair);background:var(--surface);color:var(--muted);border-radius:9px;cursor:pointer;transition:all .14s}
+  .viewtabs button:hover{border-color:var(--ink);color:var(--ink)}
+  .viewtabs button.active{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+  /* Chart */
+  .chartcard{border:1px solid var(--hair);background:var(--surface);border-radius:14px;padding:8px 8px 4px;position:relative}
+  canvas{width:100%;display:block;touch-action:none}
+  .tooltip{position:absolute;pointer-events:none;z-index:5;background:var(--surface-2);border:1px solid var(--hair);border-radius:9px;
+    padding:9px 11px;font-size:12px;min-width:150px;box-shadow:0 6px 20px rgba(0,0,0,.14);opacity:0;transition:opacity .1s}
+  .tooltip.on{opacity:1}
+  .tooltip .yr{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:12.5px;margin-bottom:6px;letter-spacing:.04em}
+  .tooltip .tr{display:flex;justify-content:space-between;align-items:center;gap:14px;margin:2px 0}
+  .tooltip .tr .nm{display:inline-flex;align-items:center;gap:7px;color:var(--muted)}
+  .tooltip .tr .sw{width:9px;height:9px;border-radius:2px;flex:none}
+  .tooltip .tr .vv{font-family:"JetBrains Mono",monospace;font-weight:700;color:var(--ink)}
+  .tooltip .tot{border-top:1px solid var(--hair);margin-top:5px;padding-top:5px;font-weight:700}
+
+  .legend{display:flex;gap:16px;flex-wrap:wrap;padding:8px 12px 12px;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:7px}
+  .legend .sw{width:15px;height:11px;border-radius:3px;display:inline-block}
+  .legend .ln{width:16px;height:0;border-top:2px solid;display:inline-block}
+  .legend .dash{width:16px;height:0;border-top:2px dashed var(--ghost);display:inline-block}
+
+  /* Presets */
+  .presets{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:20px 0 4px}
+  .presets .pl{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-right:4px}
+  .presets button{font-family:"JetBrains Mono",monospace;font-size:12px;padding:9px 14px;border:1px solid var(--hair);background:var(--surface);color:var(--ink);border-radius:999px;cursor:pointer;transition:all .15s}
+  .presets button:hover{border-color:var(--ink)}
+  .presets button.active{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
+  /* Sliders */
+  .controls{display:grid;grid-template-columns:1fr 1fr;gap:14px 30px;margin-top:16px}
+  .ctrl{padding:2px 0}
+  .ctrl .row{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+  .ctrl label{font-size:13.5px;font-weight:500}
+  .ctrl .val{font-family:"JetBrains Mono",monospace;font-size:13px;font-weight:700;color:var(--steel);white-space:nowrap}
+  .ctrl .hint{font-size:11.5px;color:var(--muted);margin-top:1px}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;cursor:pointer;margin-top:4px}
+  input[type=range]::-webkit-slider-runnable-track{height:3px;background:var(--hair);border-radius:2px}
+  input[type=range]::-moz-range-track{height:3px;background:var(--hair);border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:18px;height:18px;border-radius:50%;background:var(--ink);margin-top:-7.5px;border:3px solid var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.25)}
+  input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--ink);border:3px solid var(--surface);box-shadow:0 1px 3px rgba(0,0,0,.25)}
+  input[type=range]:focus-visible{outline:2px solid var(--signal);outline-offset:4px;border-radius:4px}
+
+  /* Table view */
+  .tabletoggle{margin-top:18px}
+  .tabletoggle summary{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.04em;color:var(--muted);cursor:pointer;padding:6px 0}
+  .tabletoggle summary:hover{color:var(--ink)}
+  .tblwrap{overflow-x:auto;border:1px solid var(--hair);border-radius:10px;margin-top:8px}
+  table{border-collapse:collapse;width:100%;font-size:12.5px;min-width:640px}
+  th,td{padding:7px 11px;text-align:right;border-bottom:1px solid var(--hair);white-space:nowrap}
+  th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--surface)}
+  thead th{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700;background:var(--surface-2)}
+  tbody td{font-family:"JetBrains Mono",monospace}
+  tr.peakrow td{background:var(--signal-wash);font-weight:700}
+
+  .note{margin-top:22px;padding:14px 16px;border-left:3px solid var(--signal);background:var(--signal-wash);border-radius:0 10px 10px 0;font-size:13.5px;max-width:82ch}
+  .note b{color:var(--ink)}
+  footer{margin-top:26px;font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.05em;color:var(--muted);line-height:1.7}
+  footer a{color:var(--steel)}
+
+  @media(max-width:760px){
+    .readout{grid-template-columns:1fr 1fr}
+    .cell:nth-child(2){border-right:0}
+    .controls{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="wrap" data-palette="#2a78d6,#008300,#e87ba4,#eda100">
+  <div class="topbar">
+    <div>
+      <div class="eyebrow">Regionalna simulacija · svetovni vozni park · 2025–2065</div>
+      <h1>Kdaj doseže svet vrh avtomobilov?</h1>
+      <p class="sub">Deljena avtonomna vozila vozijo 24 ur na dan — en avto opravi delo mnogih. Lastništvo doseže vrh in upade, a kilometri lahko narastejo. Vprašanje: <b>ali obstoječe ceste to zdržijo?</b> Premikaj drsnike in poglej vrh po regijah ter obremenitev cest.</p>
+    </div>
+    <button class="themebtn" id="themebtn" type="button">◐ tema</button>
+  </div>
+
+  <div class="readout">
+    <div class="cell hero">
+      <div class="k">Leto vrha (svet)</div>
+      <div class="v" id="peakYear">—</div>
+      <div class="u" id="peakSub">vrh svetovnega parka</div>
+    </div>
+    <div class="cell">
+      <div class="k">Vozil ob vrhu</div>
+      <div class="v small" id="peakVal">—</div>
+      <div class="u">milijard</div>
+    </div>
+    <div class="cell">
+      <div class="k">Vozil 2060</div>
+      <div class="v small" id="val2060">—</div>
+      <div class="u">milijard</div>
+    </div>
+    <div class="cell">
+      <div class="k">Upad od vrha</div>
+      <div class="v small" id="decline">—</div>
+      <div class="u">do 2060</div>
+    </div>
+  </div>
+
+  <div class="roadstrip" id="roadstrip">
+    <span class="dot" id="roadDot" style="background:var(--good)"></span>
+    <span class="lab">Cestna obremenitev 2060</span>
+    <span class="stat" id="roadStat">—</span>
+    <span class="num" id="roadIdx" style="color:var(--muted)">—</span>
+    <span class="sep"></span>
+    <span class="lab">Prevoženi km 2060</span>
+    <span class="num" id="vktNum" style="color:var(--signal)">—</span>
+    <span class="sep"></span>
+    <span class="lab">Prepustnost cest 2060</span>
+    <span class="num" id="capNum" style="color:var(--steel)">—</span>
+  </div>
+
+  <div class="viewtabs" id="viewtabs">
+    <button data-v="fleet" class="active" type="button">Vozni park po regijah</button>
+    <button data-v="road" type="button">Cestna obremenitev</button>
+  </div>
+
+  <div class="chartcard">
+    <canvas id="chart" height="440"></canvas>
+    <div class="tooltip" id="tip"></div>
+    <div class="legend" id="legend"></div>
+  </div>
+
+  <div class="presets" id="presets">
+    <span class="pl">Scenarij:</span>
+    <button data-p="cons" type="button">Konzervativni</button>
+    <button data-p="mid" class="active" type="button">Srednji</button>
+    <button data-p="agg" type="button">Agresivni (Seba)</button>
+  </div>
+
+  <div class="controls" id="controls">
+    <div class="ctrl">
+      <div class="row"><label for="share">Krovni delež deljenih voženj (vrh)</label><span class="val" id="shareV"></span></div>
+      <input type="range" id="share" min="0" max="95" step="1">
+      <div class="hint">Glavni vzvod. Brez deljenja avtonomija skoraj ne zniža parka.</div>
+    </div>
+    <div class="ctrl">
+      <div class="row"><label for="m">Izkoriščenost deljenega vozila</label><span class="val" id="mV"></span></div>
+      <input type="range" id="m" min="1" max="10" step="0.1">
+      <div class="hint">Kolikokrat več km/leto kot zasebni avto (24/7 raba).</div>
+    </div>
+    <div class="ctrl">
+      <div class="row"><label for="dt0">Zamik uveljavitve (regulacija)</label><span class="val" id="dt0V"></span></div>
+      <input type="range" id="dt0" min="-8" max="12" step="1">
+      <div class="hint">Premakne prelomna leta vseh regij. Prava avtonomija (L4) še ni tu.</div>
+    </div>
+    <div class="ctrl">
+      <div class="row"><label for="k">Hitrost sprejemanja</label><span class="val" id="kV"></span></div>
+      <input type="range" id="k" min="0.15" max="0.45" step="0.01">
+      <div class="hint">Strmina S-krivulje. Danes strmejša kot nekoč — a avto ni telefon.</div>
+    </div>
+    <div class="ctrl">
+      <div class="row"><label for="g">Rast povpraševanja po mobilnosti</label><span class="val" id="gV"></span></div>
+      <input type="range" id="g" min="0.5" max="1.6" step="0.05">
+      <div class="hint">Gonijo jo trgi v vzponu (Azija, Afrika) — potiska svetovni vrh naprej.</div>
+    </div>
+    <div class="ctrl">
+      <div class="row"><label for="dead">Prazne vožnje (rebound)</label><span class="val" id="deadV"></span></div>
+      <input type="range" id="dead" min="0" max="40" step="1">
+      <div class="hint">Repozicioniranje in prevzemi dodajo kilometre — dvig obremenitve.</div>
+    </div>
+    <div class="ctrl">
+      <div class="row"><label for="cap">Pridobitev prepustnosti (platooning)</label><span class="val" id="capV"></span></div>
+      <input type="range" id="cap" min="0" max="150" step="5">
+      <div class="hint">Povezana vozila v gostejših tokovih — več prometa na isti cesti.</div>
+    </div>
+    <div class="ctrl">
+      <div class="row"><label for="n0">Izhodišče 2025 (skupni park)</label><span class="val" id="n0V"></span></div>
+      <input type="range" id="n0" min="1.4" max="1.8" step="0.05">
+      <div class="hint">Ocena svetovnega voznega parka danes (milijard vozil).</div>
+    </div>
+  </div>
+
+  <details class="tabletoggle" id="tabletoggle">
+    <summary>Prikaži podatkovno tabelo (dostopnost)</summary>
+    <div class="tblwrap"><table id="dtable"></table></div>
+  </details>
+
+  <div class="note">
+    <b>Pošten pridržek:</b> vrh sproži <b>deljenje</b>, ne avtonomija sama — zasebno avtonomno vozilo zniža park le za okoli desetino. In manj <b>vozil</b> ne pomeni manj <b>kilometrov</b>: zaradi praznih voženj skupni prevoženi kilometri lahko narastejo, tudi ko število avtomobilov upada. Zato ločimo dve krivulji — <b>lastništvo</b> (pade) in <b>cestno obremenitev</b> (lahko naraste). Teza »obstoječe ceste zadoščajo« velja le, kadar prepustnost raste hitreje od kilometrov; z drsnikoma <i>prazne vožnje</i> in <i>pridobitev prepustnosti</i> jo lahko obrneš v rdeče.
+  </div>
+
+  <footer>
+    Model: N(t) = Σᵣ N₀ᵣ · Dᵣ(t) · [1 − φᵣ(t)·(1 − 1/m)] &nbsp;·&nbsp; L(t) = Σ wᵣ·VKTᵣ / Σ wᵣ·Capᵣ<br>
+    4 regije · Viri: ITF/OECD (Lizbona, Helsinki), RethinkX (Seba), S&amp;P Global Mobility, PATH/Berkeley, Litman/VTPI · Podlaga: <a href="docs/temeljna-analiza.md">docs/temeljna-analiza.md</a>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  const YEAR0=2025, YEAR1=2065;
+  const years=[]; for(let y=YEAR0;y<=YEAR1;y++) years.push(y);
+  const NY=years.length;
+  const idxOf=y=>y-YEAR0;
+
+  // ---- regions (base parameters) ----
+  const REGIONS=[
+    {id:'oecd', name:'Razviti / OECD',                      short:'OECD',          css:'--r1', fill:'--r1-fill', n0:0.62, g0:0.005, g1:0.000, gsat:2036, pmaxRel:1.00, t0:2039, kRel:1.00, kmw:1.30},
+    {id:'cn',   name:'Kitajska',                            short:'Kitajska',      css:'--r2', fill:'--r2-fill', n0:0.34, g0:0.026, g1:0.003, gsat:2044, pmaxRel:1.02, t0:2041, kRel:1.06, kmw:1.05},
+    {id:'rest', name:'Ost. Azija · Lat. Amerika · Bl. vzhod',short:'Ostalo',       css:'--r3', fill:'--r3-fill', n0:0.42, g0:0.031, g1:0.006, gsat:2052, pmaxRel:0.86, t0:2047, kRel:0.90, kmw:1.00},
+    {id:'afr',  name:'Afrika · Južna Azija',                short:'Afrika+J.Az.',  css:'--r4', fill:'--r4-fill', n0:0.22, g0:0.050, g1:0.018, gsat:2062, pmaxRel:0.80, t0:2051, kRel:0.85, kmw:0.85},
+  ];
+  const N0SUM=REGIONS.reduce((s,r)=>s+r.n0,0); // 1.60
+
+  const presets={
+    cons:{share:60, m:3.5, dt0:7,  k:0.20, g:1.25, dead:32, cap:55,  n0:1.60},
+    mid: {share:80, m:5.0, dt0:3,  k:0.26, g:1.10, dead:20, cap:100, n0:1.60},
+    agg: {share:92, m:8.0, dt0:-4, k:0.36, g:1.00, dead:12, cap:140, n0:1.60},
+  };
+
+  const el=id=>document.getElementById(id);
+  const inputs={share:el('share'),m:el('m'),dt0:el('dt0'),k:el('k'),g:el('g'),dead:el('dead'),cap:el('cap'),n0:el('n0')};
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let view='fleet';
+
+  function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+
+  // ---- core model ----
+  function demandSeries(r,gmul){
+    const D=new Array(NY); D[0]=1;
+    const g0=r.g0*gmul, g1=r.g1*gmul, span=Math.max(1,r.gsat-YEAR0);
+    for(let i=1;i<NY;i++){
+      const frac=Math.min(Math.max((years[i]-YEAR0)/span,0),1);
+      const g=g0+(g1-g0)*frac;
+      D[i]=D[i-1]*(1+g);
+    }
+    return D;
+  }
+  function compute(p){
+    const share=p.share/100, m=p.m, kBase=p.k, dt0=p.dt0, gmul=p.g,
+          dead=p.dead/100, capGain=p.cap/100, scale=p.n0/N0SUM;
+
+    const regN=[], regBase=[];          // per-region [NY]
+    const N=new Array(NY).fill(0), base=new Array(NY).fill(0);
+    let numVKT=new Array(NY).fill(0), numCap=new Array(NY).fill(0), wsum=0;
+
+    REGIONS.forEach(r=>{
+      const n0=r.n0*scale;
+      const D=demandSeries(r,gmul);
+      const pmax=Math.min(0.97, share*r.pmaxRel);
+      const kR=kBase*r.kRel, t0=r.t0+dt0, w=n0*r.kmw; wsum+=w;
+      const rn=new Array(NY), rb=new Array(NY);
+      for(let i=0;i<NY;i++){
+        const phi= pmax<=0?0: pmax/(1+Math.exp(-kR*(years[i]-t0)));
+        const a  = pmax<=0?0: phi/pmax;                 // adoption progress 0..1
+        rb[i]=n0*D[i];
+        rn[i]=n0*D[i]*(1-phi*(1-1/m));
+        base[i]+=rb[i]; N[i]+=rn[i];
+        numVKT[i]+= w*(D[i]*(1+phi*dead));
+        numCap[i]+= w*(1+a*capGain);
+      }
+      regN.push(rn); regBase.push(rb);
+    });
+
+    // road-load indices (normalized: at 2025 VKT=Cap=1 -> load=1)
+    const vkt=new Array(NY), cap=new Array(NY), load=new Array(NY);
+    for(let i=0;i<NY;i++){ vkt[i]=numVKT[i]/wsum; cap[i]=numCap[i]/wsum; load[i]=vkt[i]/cap[i]; }
+
+    let pi=0; for(let i=1;i<NY;i++) if(N[i]>N[pi]) pi=i;
+    return {regN,regBase,N,base,vkt,cap,load,peakI:pi};
+  }
+
+  // ---- animation morph ----
+  let cur=null,target=null,raf=null;
+  function clone(r){return {regN:r.regN.map(a=>a.slice()),regBase:r.regBase.map(a=>a.slice()),
+    N:r.N.slice(),base:r.base.slice(),vkt:r.vkt.slice(),cap:r.cap.slice(),load:r.load.slice(),peakI:r.peakI};}
+  function setTarget(p){
+    const r=compute(p); target=r;
+    readout(r); buildTable(r);
+    if(!cur||reduce){cur=clone(r); render(); return;}
+    if(!raf) raf=requestAnimationFrame(stepAnim);
+  }
+  function lerpArr(a,b){let done=true; for(let i=0;i<a.length;i++){a[i]+=(b[i]-a[i])*0.24; if(Math.abs(b[i]-a[i])>1e-4)done=false;} return done;}
+  function stepAnim(){
+    let done=true;
+    if(!lerpArr(cur.N,target.N))done=false;
+    if(!lerpArr(cur.base,target.base))done=false;
+    if(!lerpArr(cur.vkt,target.vkt))done=false;
+    if(!lerpArr(cur.cap,target.cap))done=false;
+    if(!lerpArr(cur.load,target.load))done=false;
+    for(let j=0;j<cur.regN.length;j++){ if(!lerpArr(cur.regN[j],target.regN[j]))done=false; lerpArr(cur.regBase[j],target.regBase[j]); }
+    let pi=0; for(let i=1;i<cur.N.length;i++) if(cur.N[i]>cur.N[pi]) pi=i; cur.peakI=pi;
+    render();
+    if(!done){raf=requestAnimationFrame(stepAnim);} else {raf=null; cur=clone(target); render();}
+  }
+
+  // ---- readouts ----
+  function fmtPct(x){return (x>=0?'+':'−')+Math.abs(Math.round(x))+' %';}
+  function readout(r){
+    const py=years[r.peakI];
+    el('peakYear').textContent=py;
+    el('peakVal').textContent=r.N[r.peakI].toFixed(2);
+    const i60=idxOf(2060);
+    el('val2060').textContent=r.N[i60].toFixed(2);
+    const dec=Math.round((1-r.N[i60]/r.N[r.peakI])*100);
+    el('decline').textContent=(dec<=0?'0 %':'−'+dec+' %');
+    const sub=el('peakSub');
+    if(py<=YEAR0+1) sub.textContent='vrh je praktično že tu';
+    else if(py>=2052) sub.textContent='park raste še dolgo';
+    else sub.textContent='vrh svetovnega parka';
+
+    // road strip
+    const L=r.load[i60];
+    el('roadIdx').textContent='×'+L.toFixed(2);
+    el('vktNum').textContent='×'+r.vkt[i60].toFixed(2);
+    el('capNum').textContent='×'+r.cap[i60].toFixed(2);
+    let color,label;
+    if(L<=1.02){color='--good';label='Obstoječe ceste zadoščajo';}
+    else if(L<=1.15){color='--warn';label='Ceste na meji';}
+    else{color='--crit';label='Potrebna nova infrastruktura';}
+    el('roadDot').style.background=css(color);
+    const rs=el('roadStat'); rs.textContent=label; rs.style.color=css(color);
+    el('roadIdx').style.color=css(color);
+  }
+
+  // ---- table ----
+  function buildTable(r){
+    const step=5, rowsY=[]; for(let y=YEAR0;y<=YEAR1;y+=step) rowsY.push(y); if(rowsY[rowsY.length-1]!==YEAR1) rowsY.push(YEAR1);
+    let h='<thead><tr><th>Leto</th>';
+    REGIONS.forEach(rg=>h+='<th>'+rg.short+'</th>');
+    h+='<th>Svet</th><th>Brez preob.</th><th>Km (idx)</th><th>Prepust.</th><th>Obrem.</th></tr></thead><tbody>';
+    rowsY.forEach(y=>{const i=idxOf(y); const pk=(i===r.peakI);
+      h+='<tr class="'+(pk?'peakrow':'')+'"><td>'+y+(pk?' ◂vrh':'')+'</td>';
+      REGIONS.forEach((rg,j)=>h+='<td>'+r.regN[j][i].toFixed(2)+'</td>');
+      h+='<td>'+r.N[i].toFixed(2)+'</td><td>'+r.base[i].toFixed(2)+'</td><td>×'+r.vkt[i].toFixed(2)+'</td><td>×'+r.cap[i].toFixed(2)+'</td><td>×'+r.load[i].toFixed(2)+'</td></tr>';
+    });
+    el('dtable').innerHTML=h+'</tbody>';
+  }
+
+  // ---- legend ----
+  function buildLegend(){
+    const L=el('legend');
+    if(view==='fleet'){
+      let h='';
+      REGIONS.forEach(rg=>h+='<span><i class="sw" style="background:'+css(rg.css)+'"></i> '+rg.name+'</span>');
+      h+='<span><i class="dash"></i> brez preobrata (samo rast)</span>';
+      L.innerHTML=h;
+    } else {
+      L.innerHTML=
+        '<span><i class="ln" style="border-color:'+css('--signal')+'"></i> prevoženi km (povpraševanje + prazne vožnje)</span>'+
+        '<span><i class="ln" style="border-color:'+css('--steel')+'"></i> prepustnost cest (platooning)</span>'+
+        '<span><i class="ln" style="border-color:'+css('--ink')+'"></i> obremenitev = km / prepustnost</span>'+
+        '<span><i class="dash"></i> izhodišče 2025 (= 1,0)</span>';
+    }
+  }
+
+  // ---- canvas ----
+  const cv=el('chart'), ctx=cv.getContext('2d'), tip=el('tip');
+  let W=0,H=0,dpr=1,hoverI=-1, geom=null;
+  function resize(){
+    dpr=Math.min(window.devicePixelRatio||1,2);
+    W=cv.clientWidth; H=440;
+    cv.width=W*dpr; cv.height=H*dpr; cv.style.height=H+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    render();
+  }
+  window.addEventListener('resize',resize);
+
+  function roundRect(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+
+  function render(){ if(!cur)return; if(view==='fleet') drawFleet(); else drawRoad(); }
+
+  function axes(maxV,padL,padR,padT,padB,unit,decimals){
+    const w=W-padL-padR, h=H-padT-padB;
+    const x=i=>padL+(i/(NY-1))*w;
+    const y=v=>padT+h-(v/maxV)*h;
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle=css('--hair'); ctx.lineWidth=1;
+    ctx.fillStyle=css('--muted'); ctx.font='11px "JetBrains Mono", monospace'; ctx.textBaseline='middle';
+    const steps=4;
+    for(let s=0;s<=steps;s++){
+      const v=maxV*s/steps, yy=y(v);
+      ctx.globalAlpha=s===0?0.9:0.45;
+      ctx.beginPath();ctx.moveTo(padL,yy);ctx.lineTo(padL+w,yy);ctx.stroke();
+      ctx.globalAlpha=1; ctx.textAlign='right';
+      ctx.fillText(v.toFixed(decimals),padL-8,yy);
+    }
+    ctx.textAlign='center'; ctx.textBaseline='top';
+    for(const yr of [2025,2035,2045,2055,2065]){const i=idxOf(yr); if(i<0||i>=NY)continue; ctx.fillText(yr,x(i),padT+h+9);}
+    if(unit){ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.fillStyle=css('--muted');ctx.fillText(unit,padL-40,padT-8);}
+    return {x,y,w,h,padL,padT,padB};
+  }
+
+  function drawFleet(){
+    const st=cur, pT=24,pB=34;
+    let maxV=0; for(const v of st.base) if(v>maxV) maxV=v; maxV*=1.06;
+    const g=axes(maxV,52,64,pT,pB,'mrd',1);
+    const {x,y}=g;
+    geom={x,y,padL:52,padT:pT,h:g.h,mode:'fleet'};
+
+    // stacked areas (bottom -> top)
+    const cum=new Array(NY).fill(0);
+    for(let j=0;j<REGIONS.length;j++){
+      const lower=cum.slice();
+      for(let i=0;i<NY;i++) cum[i]+=st.regN[j][i];
+      ctx.beginPath();
+      for(let i=0;i<NY;i++){ const xx=x(i),yy=y(cum[i]); i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy);}
+      for(let i=NY-1;i>=0;i--){ ctx.lineTo(x(i),y(lower[i])); }
+      ctx.closePath();
+      ctx.fillStyle=css(REGIONS[j].fill); ctx.fill();
+      // 2px surface gap on the upper boundary
+      ctx.strokeStyle=css('--surface'); ctx.lineWidth=2; ctx.lineJoin='round';
+      ctx.beginPath(); for(let i=0;i<NY;i++){const xx=x(i),yy=y(cum[i]); i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy);} ctx.stroke();
+      // colored top edge
+      ctx.strokeStyle=css(REGIONS[j].css); ctx.lineWidth=1.5;
+      ctx.beginPath(); for(let i=0;i<NY;i++){const xx=x(i),yy=y(cum[i]); i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy);} ctx.stroke();
+    }
+
+    // baseline ghost (total, no disruption)
+    ctx.strokeStyle=css('--ghost'); ctx.lineWidth=2; ctx.setLineDash([5,5]);
+    ctx.beginPath(); st.base.forEach((v,i)=>{i?ctx.lineTo(x(i),y(v)):ctx.moveTo(x(i),y(v));}); ctx.stroke(); ctx.setLineDash([]);
+
+    // total top line accent
+    ctx.strokeStyle=css('--ink'); ctx.globalAlpha=.28; ctx.lineWidth=1.5;
+    ctx.beginPath(); st.N.forEach((v,i)=>{i?ctx.lineTo(x(i),y(v)):ctx.moveTo(x(i),y(v));}); ctx.stroke(); ctx.globalAlpha=1;
+
+    // peak marker
+    const pi=st.peakI, px=x(pi), py=y(st.N[pi]);
+    ctx.strokeStyle=css('--signal'); ctx.globalAlpha=.5; ctx.lineWidth=1.5; ctx.setLineDash([3,4]);
+    ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px,pT+g.h);ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha=1;
+    ctx.fillStyle=css('--signal'); ctx.beginPath();ctx.arc(px,py,5,0,7);ctx.fill();
+    ctx.fillStyle=css('--surface'); ctx.beginPath();ctx.arc(px,py,2,0,7);ctx.fill();
+    const label='VRH · '+years[pi];
+    ctx.font='700 12px "JetBrains Mono", monospace';
+    const tw=ctx.measureText(label).width+16; let lx=px+10; if(lx+tw>g.padL+g.w) lx=px-10-tw;
+    const ly=Math.max(pT+2,py-30);
+    ctx.fillStyle=css('--signal'); roundRect(ctx,lx,ly,tw,20,5); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.textAlign='left'; ctx.textBaseline='middle'; ctx.fillText(label,lx+8,ly+10);
+
+    // direct region labels at right edge (ink text + colored swatch) -> satisfies relief rule
+    const mids=[]; let acc=0;
+    for(let j=0;j<REGIONS.length;j++){ const lo=acc; acc+=st.regN[j][NY-1]; mids.push((lo+acc)/2); }
+    ctx.font='600 11px "Inter", sans-serif'; ctx.textBaseline='middle'; ctx.textAlign='left';
+    const placed=[];
+    for(let j=REGIONS.length-1;j>=0;j--){
+      let yy=y(mids[j]);
+      for(const p of placed){ if(Math.abs(yy-p)<13) yy=p-13; }
+      placed.push(yy);
+      const lxx=g.padL+g.w+6;
+      ctx.fillStyle=css(REGIONS[j].css); roundRect(ctx,lxx,yy-4,8,8,2); ctx.fill();
+      ctx.fillStyle=css('--muted'); ctx.fillText(REGIONS[j].short,lxx+12,yy);
+    }
+
+    drawCrosshair(g,'fleet');
+  }
+
+  function drawRoad(){
+    const st=cur, pT=24,pB=34;
+    let maxV=1.1; for(let i=0;i<NY;i++){ maxV=Math.max(maxV,st.vkt[i],st.cap[i],st.load[i]); } maxV*=1.06;
+    const g=axes(maxV,52,64,pT,pB,'×',2);
+    const {x,y}=g;
+    geom={x,y,padL:52,padT:pT,h:g.h,mode:'road'};
+
+    // reference line at 1.0
+    const y1=y(1);
+    ctx.strokeStyle=css('--ghost'); ctx.lineWidth=1.5; ctx.setLineDash([5,5]);
+    ctx.beginPath();ctx.moveTo(g.padL,y1);ctx.lineTo(g.padL+g.w,y1);ctx.stroke(); ctx.setLineDash([]);
+
+    // shade load>1 region (crit wash) and load<1 (good wash) under the load line
+    function bandFill(color, above){
+      ctx.beginPath();
+      for(let i=0;i<NY;i++){const xx=x(i),yy=y(st.load[i]); i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy);}
+      for(let i=NY-1;i>=0;i--){ ctx.lineTo(x(i),y1); }
+      ctx.closePath();
+      ctx.save(); ctx.clip();
+      ctx.fillStyle=css(color);
+      if(above) ctx.fillRect(g.padL,pT,g.w,y1-pT); else ctx.fillRect(g.padL,y1,g.w,(pT+g.h)-y1);
+      ctx.restore();
+    }
+    bandFill('--crit-wash',true);
+    bandFill('--good-wash',false);
+
+    function line(arr,color,width,dash){
+      ctx.strokeStyle=css(color); ctx.lineWidth=width; ctx.lineJoin='round';
+      if(dash)ctx.setLineDash(dash); else ctx.setLineDash([]);
+      ctx.beginPath(); arr.forEach((v,i)=>{i?ctx.lineTo(x(i),y(v)):ctx.moveTo(x(i),y(v));}); ctx.stroke(); ctx.setLineDash([]);
+    }
+    line(st.cap,'--steel',2.5);      // supply
+    line(st.vkt,'--signal',2.5);     // demand
+    // load line colored by end status
+    const Lend=st.load[idxOf(2060)];
+    const lc = Lend<=1.02?'--good': Lend<=1.15?'--warn':'--crit';
+    line(st.load,lc,3.5);
+
+    // end labels
+    ctx.font='600 11px "Inter", sans-serif'; ctx.textBaseline='middle'; ctx.textAlign='left';
+    const lxx=g.padL+g.w+6;
+    const labs=[{v:st.cap[NY-1],t:'prepustnost',c:'--steel'},{v:st.vkt[NY-1],t:'km',c:'--signal'},{v:st.load[NY-1],t:'obremen.',c:lc}];
+    labs.sort((a,b)=>b.v-a.v); const pl=[];
+    labs.forEach(o=>{ let yy=y(o.v); for(const p of pl){if(Math.abs(yy-p)<13)yy=p+13;} pl.push(yy);
+      ctx.fillStyle=css(o.c); roundRect(ctx,lxx,yy-4,8,8,2); ctx.fill();
+      ctx.fillStyle=css('--muted'); ctx.fillText(o.t,lxx+12,yy); });
+
+    drawCrosshair(g,'road');
+  }
+
+  function drawCrosshair(g,mode){
+    if(hoverI<0) return;
+    const {x,y}=g, px=x(hoverI);
+    ctx.strokeStyle=css('--ink'); ctx.globalAlpha=.22; ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(px,g.padT);ctx.lineTo(px,g.padT+g.h);ctx.stroke(); ctx.globalAlpha=1;
+    if(mode==='fleet'){
+      let acc=0;
+      for(let j=0;j<REGIONS.length;j++){ acc+=cur.regN[j][hoverI];
+        ctx.fillStyle=css(REGIONS[j].css); ctx.beginPath();ctx.arc(px,y(acc),3.5,0,7);ctx.fill();
+        ctx.fillStyle=css('--surface'); ctx.beginPath();ctx.arc(px,y(acc),1.3,0,7);ctx.fill();
+      }
+    } else {
+      [['--steel',cur.cap],['--signal',cur.vkt],['--ink',cur.load]].forEach(([c,a])=>{
+        ctx.fillStyle=css(c); ctx.beginPath();ctx.arc(px,y(a[hoverI]),3.5,0,7);ctx.fill();
+        ctx.fillStyle=css('--surface'); ctx.beginPath();ctx.arc(px,y(a[hoverI]),1.3,0,7);ctx.fill();
+      });
+    }
+  }
+
+  function showTip(clientX){
+    if(!geom||!cur){tip.classList.remove('on');return;}
+    const rect=cv.getBoundingClientRect();
+    const relX=clientX-rect.left;
+    const w=geom.x(NY-1)-geom.x(0);
+    let i=Math.round((relX-geom.padL)/w*(NY-1));
+    i=Math.min(NY-1,Math.max(0,i));
+    hoverI=i;
+    let h='<div class="yr">'+years[i]+'</div>';
+    if(view==='fleet'){
+      REGIONS.forEach((rg,j)=>{ h+='<div class="tr"><span class="nm"><i class="sw" style="background:'+css(rg.css)+'"></i>'+rg.short+'</span><span class="vv">'+cur.regN[j][i].toFixed(2)+'</span></div>'; });
+      h+='<div class="tr tot"><span class="nm">Svet</span><span class="vv">'+cur.N[i].toFixed(2)+' mrd</span></div>';
+    } else {
+      h+='<div class="tr"><span class="nm"><i class="sw" style="background:'+css('--signal')+'"></i>prevoženi km</span><span class="vv">×'+cur.vkt[i].toFixed(2)+'</span></div>';
+      h+='<div class="tr"><span class="nm"><i class="sw" style="background:'+css('--steel')+'"></i>prepustnost</span><span class="vv">×'+cur.cap[i].toFixed(2)+'</span></div>';
+      h+='<div class="tr tot"><span class="nm">obremenitev</span><span class="vv">×'+cur.load[i].toFixed(2)+'</span></div>';
+    }
+    tip.innerHTML=h; tip.classList.add('on');
+    // position
+    const px=geom.x(i);
+    let left=px+14; if(left+tip.offsetWidth>W-4) left=px-14-tip.offsetWidth;
+    if(left<4) left=4;
+    tip.style.left=left+'px'; tip.style.top=geom.padT+6+'px';
+    render();
+  }
+  cv.addEventListener('pointermove',e=>showTip(e.clientX));
+  cv.addEventListener('pointerdown',e=>showTip(e.clientX));
+  cv.addEventListener('pointerleave',()=>{hoverI=-1;tip.classList.remove('on');render();});
+
+  // ---- wiring ----
+  function readInputs(){return {share:+inputs.share.value,m:+inputs.m.value,dt0:+inputs.dt0.value,k:+inputs.k.value,g:+inputs.g.value,dead:+inputs.dead.value,cap:+inputs.cap.value,n0:+inputs.n0.value};}
+  function labels(p){
+    el('shareV').textContent=p.share+' %';
+    el('mV').textContent=p.m.toFixed(1)+'×';
+    el('dt0V').textContent=(p.dt0>0?'+':'')+p.dt0+' let';
+    el('kV').textContent=p.k.toFixed(2);
+    el('gV').textContent='×'+p.g.toFixed(2);
+    el('deadV').textContent='+'+p.dead+' %';
+    el('capV').textContent='+'+p.cap+' %';
+    el('n0V').textContent=p.n0.toFixed(2)+' mrd';
+  }
+  function applyPreset(p){
+    inputs.share.value=p.share; inputs.m.value=p.m; inputs.dt0.value=p.dt0; inputs.k.value=p.k;
+    inputs.g.value=p.g; inputs.dead.value=p.dead; inputs.cap.value=p.cap; inputs.n0.value=p.n0;
+    labels(p); setTarget(p);
+  }
+  Object.values(inputs).forEach(inp=>inp.addEventListener('input',()=>{
+    const p=readInputs(); labels(p); setTarget(p);
+    document.querySelectorAll('#presets button').forEach(b=>b.classList.remove('active'));
+  }));
+  document.querySelectorAll('#presets button').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('#presets button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); applyPreset(presets[b.dataset.p]);
+  }));
+  document.querySelectorAll('#viewtabs button').forEach(b=>b.addEventListener('click',()=>{
+    document.querySelectorAll('#viewtabs button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); view=b.dataset.v; buildLegend(); render();
+  }));
+
+  // theme toggle
+  el('themebtn').addEventListener('click',()=>{
+    const cur=document.documentElement.getAttribute('data-theme');
+    const sysDark=window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let next;
+    if(cur==='dark') next='light'; else if(cur==='light') next='dark'; else next=sysDark?'light':'dark';
+    document.documentElement.setAttribute('data-theme',next);
+    buildLegend(); render();
+  });
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{buildLegend();render();});
+
+  buildLegend();
+  resize();
+  applyPreset(presets.mid);
+})();
+</script>
+</body>
+</html>
