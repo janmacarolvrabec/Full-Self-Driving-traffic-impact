@@ -68,6 +68,26 @@ deljeno floto — je še pred nami.
 kot **spremenljivko**, ne kot že nastopljeno dejstvo iz leta 2026. V simulaciji ji
 ustreza *prelomno leto uveljavitve* (sredina S-krivulje) in njegov *zamik*.
 
+**Preizkušeno v praksi (D-day je tukaj).** Projekcije ne stojijo na obljubah,
+ampak na sistemih, ki **vozijo danes**:
+
+- **Waymo** prevaža plačljive potnike **brez voznika** (San Francisco, Phoenix,
+  Los Angeles, Austin) — polna avtonomija (L4) kot storitev, ne prototip.
+- **Tesla FSD (Supervised)** samodejno vozi od točke A do B; robotaxi pilot v
+  Austinu (2025).
+- **NVIDIA** je predstavila celovito platformo (DRIVE Thor / Hyperion) —
+  integracija računalnika, senzorike in programske opreme za serijska vozila.
+- **Baidu Apollo Go, XPeng, Zeekr** — robotaksiji brez voznika in serijska
+  integracija na Kitajskem.
+- **Mercedes-Benz Drive Pilot** — pogojna avtonomija (L3) na avtocestah.
+
+**Avtorjev preizkus iz prve roke.** Avtor je v zadnjem letu osebno testiral
+**Teslin FSD** (januar, Zagreb) in **Zeekrjevo avtonomno vožnjo** (Hangzhou,
+Kitajska). Sistema vozita v praksi, na dveh celinah — FSD torej ni prototip,
+ampak **obstoječa in zrela tehnologija**. Z drugimi besedami: **točko inovacije
+smo že prešli**; naprej ne gre za *izum*, ampak za *hitrost širjenja* — in prav
+to modelira simulacija.
+
 ---
 
 ## 3. Krivulje uveljavitve tehnologij (zakaj S-krivulja)
@@ -161,6 +181,15 @@ Svetovna krivulja je njihova vsota. Zato lahko razviti svet doseže vrh v sredin
 2030. let, medtem ko Afrika in Južna Azija **še naprej dvigata svetovni skupek**
 še po 2050. To je *neenakomeren razvoj*, prevzet naravnost iz podatkov.
 
+**Kako to vidi animacija (svetovna mapa).** Uvodna animacija prikaže isti
+neenakomeren val na zemljevidu: prehod iz klasičnih (temne pike) v avtonomna
+vozila (modre) se **sproži v ZDA** (poln avtonomni park šele okoli **2045**, ne
+prej), sledita **Kitajska** in Evropa, nato se počasi širi navzven. **Slabo
+razviti deli — večina Afrike, Rusija, deli Azije — ostajajo pretežno klasični
+še leta 2060**; obarvajo se le razvitejši robovi (npr. sever in jug Afrike). Do
+2060 je tako avtonomnih le okoli polovice svetovnega parka — konzervativna,
+poštena projekcija, ne skok v 100 %.
+
 ---
 
 ## 6. Infrastruktura: zakaj obstoječa zadošča
@@ -178,6 +207,23 @@ usklajenih tokovih:
 - Literatura tezo izrecno uokvirja: **drago in okoljsko škodljivo je povečevati
   prepustnost z gradnjo novih cest, ko pa jo lahko povečamo z boljšo izrabo
   obstoječe infrastrukture** — skoraj parafraza Janovega argumenta.
+
+**Zakaj manj zastojev (ne le več prepustnosti).** Večina zastojev ne nastane
+zaradi premalo cest, ampak zaradi **načina, kako vozimo ljudje**:
+
+- **Fantomski zastoji.** Sugiyama in sod. (2008) so v obročnem poskusu dokazali,
+  da zastoj nastane **brez ovire**: en voznik po nepotrebnem zavre, naslednji
+  zavre močneje, in val ustavljanja (»jamiton«) potuje nazaj po cesti. Vzrok je
+  človeški **zamik reakcije** (~1 s) in nihanje.
+- **Avtonomni tok je stabilen.** Stern in sod. (2018) so pokazali, da **en sam**
+  avtonomno vodeni avto med 20 človeškimi zaduši stop-and-go valove in zniža
+  porabo goriva. Stroji reagirajo takoj in usklajeno, zato nestabilnost izgine
+  (matematično: model **IDM**, Treiber in sod., 2000).
+- **Več prometa na isti cesti.** CACC / platooning skrajša varnostne razmike;
+  meritve PATH (Berkeley) kažejo prepustnost pasu **2–3×**, Talebpour &
+  Mahmassani (2016) pa pri ~50 % penetraciji **več kot podvojeno** prepustnost in
+  stabilnejši tok. Napoved je torej dvojna: **manj zastojev** in **več
+  kapacitete** — brez gradnje novih cest.
 
 **Protiutež (pošten rebound).** Boljša izraba ustvari novo povpraševanje:
 avtonomija omogoči vožnjo tistim, ki prej niso vozili (starejši, mladoletni,
@@ -244,25 +290,51 @@ deljenje, visoke prazne vožnje), *Srednji* (uravnotežen), *Agresivni / Seba*
 
 ---
 
-## 8. Viri
+## 8. Viri in študije
 
-- **ITF/OECD**, *Urban Mobility System Upgrade: How shared self-driving cars
-  could change city traffic* (t. i. Lizbonska študija), International Transport
-  Forum, 2015. — izvor deleža »1/3 parka ob konicah« in »90 % odvečnih vozil« ter
+### Vrh voznega parka & deljenje
+- **ITF/OECD (2015),** *Urban Mobility System Upgrade: How shared self-driving
+  cars could change city traffic* (Lizbonska študija), International Transport
+  Forum — izvor deleža »1/3 parka ob konicah« in »90 % odvečnih vozil« ter
   ugotovitve o naraslih VKT.
-- **ITF/OECD**, ponovitev za **Helsinke** — potrditev v drugem mestnem okolju.
-- **RethinkX**, Tony Seba & James Arbib, *Rethinking Transportation 2020–2030* —
-  scenarij hitre uveljavitve deljene avtonomije (»Agresivni« preset).
-- **S&P Global Mobility** — projekcije svetovnega voznega parka (izhodišče in
-  baseline rasti do 2050).
-- **California PATH Program (UC Berkeley)** — meritve povečanja prepustnosti pasu
-  s platooningom (faktor 2–3).
-- **T. Litman / VTPI**, *Autonomous Vehicle Implementation Predictions* —
-  časovnice uveljavitve, indukcijski (rebound) učinki, previdnostni pridržki.
-- **RDW (NL)** in nacionalni regulatorji EU — začasna EU homologacija FSD
-  (Supervised), april–junij 2026; razmejitev stopnje 2 vs. prave avtonomije.
+- **ITF/OECD (2016),** ponovitev za **Helsinke** — potrditev v drugem mestu.
+- **RethinkX — J. Arbib & T. Seba (2017),** *Rethinking Transportation
+  2020–2030* — prevoz kot storitev (TaaS), do ~80 % manj vozil (»Agresivni«).
+- **S&P Global Mobility** — projekcije svetovnega voznega parka in proizvodnje
+  (izhodišče ~1,3 mrd 2020 → ~2,2 mrd 2050 brez preobrata).
+- **T. Litman / VTPI,** *Autonomous Vehicle Implementation Predictions* —
+  časovnice uveljavitve, rebound učinki, previdnostni pridržki.
 
-> **Opozorilo o negotovosti.** Simulacija je *mis, ne napoved*. Parametri so
-> negotovi in namenoma nastavljivi; namen je pokazati **občutljivost** izida na
-> predpostavke — predvsem na to, da vrh sproži *deljenje*, ne avtonomija sama, in
-> da prihranek pri vozilih ne pomeni nujno prihranka pri kilometrih.
+### Prepustnost & zastoji
+- **Sugiyama in sod. (2008),** *Traffic jams without bottlenecks — experimental
+  evidence…* (New Journal of Physics) — obročni poskus dokaže fantomski zastoj.
+- **Stern in sod. (2018),** *Dissipation of stop-and-go waves via control of
+  autonomous vehicles* (Transportation Research Part C) — en AV zaduši valove.
+- **California PATH Program (Shladover in sod.), UC Berkeley** — platooning /
+  CACC; prepustnost pasu 2–3×.
+- **Talebpour & Mahmassani (2016),** vpliv povezanih in avtonomnih vozil na
+  stabilnost toka in prepustnost (Transportation Research Part C).
+- **Treiber, Hennecke & Helbing (2000),** *Intelligent Driver Model (IDM)* —
+  model sledenja vozilom, uporabljen v animaciji prepustnosti.
+
+### Tehnologija & regulacija (D-day)
+- **RDW (NL) in nacionalni regulatorji EU (2026)** — začasna EU homologacija
+  Tesla FSD (Supervised, L2); razmejitev L2 vs. prava avtonomija.
+- **Waymo** — plačljiva vožnja brez voznika (SF, Phoenix, LA, Austin).
+- **Tesla** — FSD (Supervised); robotaxi pilot Austin (2025).
+- **NVIDIA** — platforma DRIVE Thor / Hyperion (celovita integracija).
+- **Baidu Apollo Go, XPeng, Zeekr** — robotaksiji in serijska integracija (Kitajska).
+- **Mercedes-Benz Drive Pilot** — pogojna avtonomija (L3).
+- **SAE J3016** — standardna lestvica stopenj avtomatizacije (L0–L5).
+
+### Avtorjev preizkus & metodologija
+- **Jan Macarol — preizkus iz prve roke:** Tesla FSD (januar, Zagreb) in Zeekr
+  avtonomna vožnja (Hangzhou, Kitajska).
+- **Metodologija:** logistična (S-) krivulja sprejemanja po regijah; motorizacija
+  z nasičenjem; deljena izraba (en avto = *m* avtomobilov); cestna obremenitev =
+  kilometri / prepustnost.
+
+> **Opozorilo o negotovosti.** Simulacija je *miselni eksperiment, ne napoved*.
+> Parametri so negotovi in namenoma nastavljivi; namen je pokazati **občutljivost**
+> izida na predpostavke — predvsem na to, da vrh sproži *deljenje*, ne avtonomija
+> sama, in da prihranek pri vozilih ne pomeni nujno prihranka pri kilometrih.

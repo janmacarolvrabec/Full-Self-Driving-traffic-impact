@@ -130,6 +130,18 @@
   .author .au-social a{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.02em;text-decoration:none;color:var(--ink);border:1px solid var(--hair);background:var(--surface-2);border-radius:999px;padding:7px 13px;transition:all .14s}
   .author .au-social a:hover{border-color:var(--signal);color:var(--signal)}
   .author .au-social a:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+  /* Throughput / flow section */
+  .flow{margin-top:42px}
+  .sources{margin-top:42px}
+  .flowcard{border:1px solid var(--hair);background:var(--surface);border-radius:14px;padding:14px 16px 12px;margin:16px 0 14px}
+  #flow{margin-top:6px;background:var(--surface);border-radius:8px;display:block;width:100%}
+  .srcgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+  .srccol{border:1px solid var(--hair);background:var(--surface);border-radius:12px;padding:15px 16px}
+  .srccol h3{font-family:"Archivo",sans-serif;font-weight:800;font-size:13.5px;letter-spacing:-.01em;margin:0 0 9px;color:var(--ink)}
+  .srccol ul{margin:0;padding-left:17px;display:flex;flex-direction:column;gap:8px}
+  .srccol li{font-size:12.5px;color:var(--muted);line-height:1.5}
+  .srccol li b{color:var(--ink);font-weight:600}
+  @media(max-width:760px){ .srcgrid{grid-template-columns:1fr} }
   @media(max-width:760px){ .evgrid{grid-template-columns:1fr} }
 
   .divider{display:flex;align-items:center;gap:14px;margin:34px 0 6px}
@@ -435,6 +447,98 @@
     </div>
   </section>
 
+  <section class="flow">
+    <div class="divider"><span>Prepustnost · manj zastojev</span></div>
+    <h2 class="toolhead">Zakaj avtonomija pomeni manj zastojev</h2>
+    <p class="lead" style="font-size:15px;color:var(--muted);margin-bottom:4px">Večina zastojev ne nastane zaradi premalo cest, ampak zaradi <b style="color:var(--ink)">načina, kako vozimo ljudje</b>. Nastanejo <b style="color:var(--ink)">fantomski zastoji</b>: en voznik po nepotrebnem zavre, naslednji zavre močneje, in val ustavljanja se širi nazaj po cesti — brez nesreče, brez ovire. Avtonomna vozila vozijo z enakomernim razmikom in brez zamika reakcije, zato val ne nastane. Napoved: <b style="color:var(--ink)">ista cesta prepelje več vozil in ima manj zastojev.</b></p>
+
+    <div class="flowcard">
+      <div class="leadhead">
+        <div><div class="t">Fantomski zastoj vs. gladek avtonomni tok</div>
+        <div class="s">obe krožni cesti imata enako število vozil · barva = hitrost (rdeča = stoji, modra = vozi)</div></div>
+        <button class="replay" id="flowPlay" type="button">⏸ pavza</button>
+      </div>
+      <canvas id="flow" height="300"></canvas>
+      <div class="mapstats" id="flowStats"></div>
+      <div class="leadcap">Poenostavljena simulacija sledenja vozilom (model tipa IDM): pri <b>ljudeh</b> zamik reakcije in nihanje sprožita stop-and-go val, ki potuje nazaj; pri <b>avtonomnih</b> krajši, usklajen razmik ohrani tok stabilen. Illustrativno — a mehanizem je realen in izmerjen (Sugiyama 2008, Stern 2018).</div>
+    </div>
+
+    <div class="evgrid">
+      <article class="evcard">
+        <div class="tagrow"><span class="reg">Stern idr., 2018</span><span class="yr">poskus</span></div>
+        <h3>Fantomski zastoji izginejo</h3>
+        <p>V obročnem poskusu je <b>en sam</b> avtonomno vodeni avto med 20 človeškimi zadušil stop-and-go valove in znižal porabo goriva. Dovolj je majhen delež avtonomnih, da tok postane gladek.</p>
+        <div class="src">Transportation Research Part C</div>
+      </article>
+      <article class="evcard">
+        <div class="tagrow"><span class="reg">PATH, Berkeley</span><span class="yr">platooning</span></div>
+        <h3>Krajši, usklajen razmik</h3>
+        <p>Povezana vozila (CACC / platooning) vozijo tesneje in stabilno. Meritve kažejo, da lahko prepustnost pasu naraste za <b>faktor 2–3</b> brez gradnje novih cest.</p>
+        <div class="src">California PATH · Shladover idr.</div>
+      </article>
+      <article class="evcard">
+        <div class="tagrow"><span class="reg">ITF · Talebpour, 2016</span><span class="yr">&gt; 2×</span></div>
+        <h3>Podvojena prepustnost pri 50 %</h3>
+        <p>Ko delež povezanih/avtonomnih vozil doseže <b>~50 %</b>, se prepustnost cest več kot podvoji, promet pa postane stabilnejši — manj nihanja, manj zastojev.</p>
+        <div class="src">ITF/OECD · TR Part C</div>
+      </article>
+      <article class="evcard">
+        <div class="tagrow"><span class="reg">Treiber idr., 2000</span><span class="yr">model</span></div>
+        <h3>Brez zamika reakcije</h3>
+        <p>Ljudje reagiramo z okoli <b>1 sekundo</b> zamika; to samo po sebi naredi tok nestabilen. Stroji reagirajo takoj in usklajeno — nestabilnost izgine (model IDM).</p>
+        <div class="src">Intelligent Driver Model</div>
+      </article>
+    </div>
+  </section>
+
+  <section class="sources">
+    <div class="divider"><span>Viri in študije</span></div>
+    <h2 class="toolhead">Na čem sloni ta simulacija</h2>
+    <p class="lead" style="font-size:15px;color:var(--muted);margin-bottom:4px">Model, privzete vrednosti in trditve na tej strani izhajajo iz spodnjih raziskav, poročil in preizkusov. Simulacija je <b style="color:var(--ink)">miselni eksperiment na podlagi teh virov</b>, ne napoved.</p>
+    <div class="srcgrid">
+      <div class="srccol">
+        <h3>Vrh voznega parka &amp; deljenje</h3>
+        <ul>
+          <li><b>ITF/OECD (2015):</b> <i>Urban Mobility System Upgrade</i> (Lizbonska študija) — deljena samovozeča flota naredi ~90 % avtomobilov odvečnih; ob konicah zadošča ~⅓; skupni kilometri (VKT) narastejo.</li>
+          <li><b>ITF/OECD (2016):</b> ponovitev za <b>Helsinke</b> — potrditev v drugem mestu.</li>
+          <li><b>RethinkX — Arbib &amp; Seba (2017):</b> <i>Rethinking Transportation 2020–2030</i> — prevoz kot storitev (TaaS), do ~80 % manj vozil (scenarij »Agresivni«).</li>
+          <li><b>S&amp;P Global Mobility:</b> projekcije svetovnega voznega parka in proizvodnje (izhodišče ~1,3 mrd 2020 → ~2,2 mrd 2050 brez preobrata).</li>
+          <li><b>T. Litman / VTPI:</b> <i>Autonomous Vehicle Implementation Predictions</i> — časovnice uveljavitve, indukcijski (rebound) učinki, previdnostni pridržki.</li>
+        </ul>
+      </div>
+      <div class="srccol">
+        <h3>Prepustnost &amp; zastoji</h3>
+        <ul>
+          <li><b>Sugiyama idr. (2008):</b> <i>Traffic jams without bottlenecks</i> (New J. Physics) — obročni poskus dokaže nastanek zastoja brez ovire (fantomski zastoj).</li>
+          <li><b>Stern idr. (2018):</b> <i>Dissipation of stop-and-go waves via control of autonomous vehicles</i> (TR Part C) — en avtonomni avto zaduši stop-and-go valove.</li>
+          <li><b>California PATH (Shladover idr.):</b> platooning / CACC — prepustnost pasu 2–3×.</li>
+          <li><b>Talebpour &amp; Mahmassani (2016):</b> vpliv povezanih in avtonomnih vozil na stabilnost toka in prepustnost (TR Part C).</li>
+          <li><b>Treiber, Hennecke &amp; Helbing (2000):</b> <i>Intelligent Driver Model</i> — model sledenja vozilom, uporabljen v animaciji zgoraj.</li>
+        </ul>
+      </div>
+      <div class="srccol">
+        <h3>Tehnologija &amp; regulacija (D-day)</h3>
+        <ul>
+          <li><b>RDW (NL) in nacionalni regulatorji EU (2026):</b> začasna EU homologacija za Tesla FSD (Supervised, stopnja 2).</li>
+          <li><b>Waymo:</b> plačljiva vožnja brez voznika (SF, Phoenix, LA, Austin).</li>
+          <li><b>Tesla:</b> FSD (Supervised); robotaxi pilot Austin (2025).</li>
+          <li><b>NVIDIA:</b> platforma DRIVE Thor / Hyperion — celovita integracija za avtonomno vožnjo.</li>
+          <li><b>Baidu Apollo Go, XPeng, Zeekr:</b> robotaksiji brez voznika in serijska integracija (Kitajska).</li>
+          <li><b>Mercedes-Benz Drive Pilot:</b> pogojna avtonomija (stopnja 3) na avtocestah.</li>
+          <li><b>SAE J3016:</b> standardna lestvica stopenj avtomatizacije (L0–L5).</li>
+        </ul>
+      </div>
+      <div class="srccol">
+        <h3>Avtorjev preizkus &amp; metodologija</h3>
+        <ul>
+          <li><b>Jan Macarol — preizkus iz prve roke:</b> Tesla FSD (januar, Zagreb) in Zeekr avtonomna vožnja (Hangzhou, Kitajska) — potrditev, da tehnologija deluje v praksi.</li>
+          <li><b>Metodologija:</b> logistična (S-) krivulja sprejemanja po regijah; motorizacija z nasičenjem; deljena izraba (en avto = <i>m</i> avtomobilov); cestna obremenitev = kilometri / prepustnost.</li>
+          <li><b>Opozorilo:</b> vse številke so ilustrativne in nastavljive; namen je pokazati občutljivost izida na predpostavke, ne podati napovedi.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
   <div class="author">
       <div class="au-l">
         <div class="au-name">Jan Macarol</div>
@@ -496,7 +600,7 @@
     {reg:'cn',  c:2043,k:0.90,p:[[92,52],[100,53],[112,50],[122,48],[133,45],[128,39],[122,33],[120,27],[112,21],[103,22],[97,27],[92,34],[90,42]]},
     {reg:'oecd',c:2044,k:1.00,p:[[128,34],[132,36],[136,35],[140,37],[142,41],[139,44],[135,40],[131,38]]},
     {reg:'afr', c:2058,k:0.42,p:[[67,24],[70,30],[76,32],[84,29],[90,26],[92,22],[87,15],[80,7],[76,9],[71,16]]},
-    {reg:'afr', c:2061,k:0.38,p:[[-17,20],[-16,27],[-8,33],[9,37],[22,33],[32,31],[35,22],[43,11],[51,12],[48,2],[41,-4],[40,-14],[32,-26],[22,-34],[18,-34],[13,-22],[9,-2],[8,5],[-3,5],[-12,12]]},
+    {reg:'afr', c:2060,k:0.30,grad:true,p:[[-17,20],[-16,27],[-8,33],[9,37],[22,33],[32,31],[35,22],[43,11],[51,12],[48,2],[41,-4],[40,-14],[32,-26],[22,-34],[18,-34],[13,-22],[9,-2],[8,5],[-3,5],[-12,12]]},
     {reg:'rest',c:2055,k:0.52,p:[[96,18],[100,20],[106,16],[109,10],[105,3],[99,4],[96,10]]},
     {reg:'rest',c:2056,k:0.50,p:[[96,6],[104,2],[118,0],[132,-2],[142,-4],[150,-9],[138,-9],[120,-6],[104,-4],[96,1]]},
     {reg:'oecd',c:2045,k:1.00,p:[[114,-22],[120,-18],[130,-12],[140,-12],[146,-18],[150,-28],[146,-38],[138,-38],[128,-32],[118,-33],[114,-27]]},
@@ -517,7 +621,13 @@
       const P=hit(lon,lat);
       if(!P){ ocean.push({nx,ny}); continue; }
       const jit=(Math.random()*2-1)*1.5;
-      land.push({nx,ny,reg:P.reg,center:P.c+jit,ceil:P.k});
+      let ceil=P.k, center=P.c+jit;
+      if(P.grad){ // Africa: developed north (Mediterranean) & south slowly go blue; equatorial core stays classic
+        if(lat>=18){ const t=Math.min(1,(lat-18)/16); ceil=0.34+0.22*t; center=2056-3*t+jit; }
+        else if(lat<=-20){ const t=Math.min(1,(-20-lat)/14); ceil=0.40+0.18*t; center=2054-3*t+jit; }
+        else { ceil=0.24; center=2062+jit; }
+      }
+      land.push({nx,ny,reg:P.reg,center,ceil});
       if(P.reg!=='ice') regCount[P.reg]++;
     }
   }
@@ -567,7 +677,7 @@
   function legend(){ const dot=c=>'<i class="ln" style="border:0;width:11px;height:11px;border-radius:50%;background:'+css(c)+'"></i> ';
     el('mapLegend').innerHTML='<span>'+dot('--car-classic')+'klasični avtomobil</span><span>'+dot('--car-auto')+'avtonomni avtomobil</span>'; }
 
-  let playing=false, rafId=null, lastTs=0; const SPEED=3; // years/second (slower)
+  let playing=false, rafId=null, lastTs=0; const SPEED=2.2; // years/second (slower)
   function tick(ts){ if(!lastTs)lastTs=ts; const dt=Math.min(0.1,(ts-lastTs)/1000); lastTs=ts;
     if(playing){ curYear+=dt*SPEED;
       if(curYear>=Y1){ curYear=Y1; el('mapYear').value=Y1; draw(curYear); playing=false; el('mapPlay').textContent='▸ predvajaj znova';
@@ -589,6 +699,85 @@
   else { let seen=false;
     if('IntersectionObserver' in window){ const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&!seen){seen=true;startLoop();}}),{threshold:0.2}); io.observe(cv); }
     else startLoop(); }
+})();
+</script>
+
+<script>
+/* Throughput: two ring roads (IDM car-following) — human phantom jam vs smooth autonomous flow */
+(function(){
+  "use strict";
+  const cv=document.getElementById('flow'); if(!cv) return;
+  const ctx=cv.getContext('2d');
+  const el=id=>document.getElementById(id);
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  function hexRgb(h){h=h.replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
+
+  const V0=15;                 // reference desired speed (m/s)
+  function ring(n,C,P){ const cars=[]; for(let i=0;i<n;i++){cars.push({x:i/n*C, v:V0*0.7, v0:P.v0*(P.het?(0.9+Math.random()*0.2):1)});} return {n,C,P,cars,cross:0,st:0,thr:0,vv:V0*0.7}; }
+  const HUM={v0:15,T:1.5,a:0.9,b:1.7,s0:2,len:4.6,noise:0.55,het:true};
+  const AV ={v0:15,T:0.55,a:1.7,b:2.2,s0:1.3,len:4.6,noise:0,het:false};
+  const C=210, N=20;           // ~Sugiyama regime: jams form for human
+  let human=ring(N,C,HUM), av=ring(N,C,AV);
+
+  function stepRing(R,dt){ const c=R.cars,n=R.n,Cc=R.C,P=R.P, acc=new Array(n);
+    for(let i=0;i<n;i++){ const L=c[(i+1)%n]; let s=((L.x-c[i].x)%Cc+Cc)%Cc - P.len; if(s<0.2)s=0.2;
+      const dv=c[i].v-L.v, sStar=P.s0+Math.max(0,c[i].v*P.T+c[i].v*dv/(2*Math.sqrt(P.a*P.b)));
+      let a=P.a*(1-Math.pow(c[i].v/c[i].v0,4)-Math.pow(sStar/s,2));
+      if(P.noise) a+=(Math.random()*2-1)*P.noise;
+      acc[i]=a;
+    }
+    let sv=0;
+    for(let i=0;i<n;i++){ let nv=c[i].v+acc[i]*dt; if(nv<0)nv=0; c[i].v=nv; const ox=c[i].x; c[i].x=(c[i].x+nv*dt)%Cc; if(c[i].x<ox)R.cross++; sv+=nv; }
+    R.st+=dt; R.vv=sv/n; if(R.st>0) R.thr=R.cross/R.st*60; // crossings per minute
+  }
+
+  let W=0,H=0,dpr=1;
+  function resize(){dpr=Math.min(window.devicePixelRatio||1,2);W=cv.clientWidth;H=300;cv.width=W*dpr;cv.height=H*dpr;cv.style.height=H+'px';ctx.setTransform(dpr,0,0,dpr,0,0);draw();}
+  window.addEventListener('resize',resize);
+
+  function drawRing(R,cx,cy,rad,title){
+    ctx.strokeStyle=css('--hair'); ctx.lineWidth=Math.max(10,rad*0.16); ctx.globalAlpha=.5;
+    ctx.beginPath(); ctx.arc(cx,cy,rad,0,7); ctx.stroke(); ctx.globalAlpha=1;
+    const slow=hexRgb(css('--signal')), fast=hexRgb(css('--car-auto'));
+    for(let i=0;i<R.n;i++){ const th=R.cars[i].x/R.C*Math.PI*2 - Math.PI/2;
+      const x=cx+rad*Math.cos(th), y=cy+rad*Math.sin(th);
+      const f=Math.min(1,R.cars[i].v/9);
+      const r=Math.round(slow[0]+(fast[0]-slow[0])*f), g=Math.round(slow[1]+(fast[1]-slow[1])*f), b=Math.round(slow[2]+(fast[2]-slow[2])*f);
+      ctx.fillStyle='rgb('+r+','+g+','+b+')';
+      ctx.beginPath(); ctx.arc(x,y,5.2,0,7); ctx.fill();
+      ctx.fillStyle=css('--surface'); ctx.beginPath(); ctx.arc(x,y,1.7,0,7); ctx.fill();
+    }
+    ctx.fillStyle=css('--muted'); ctx.font='700 12px ui-monospace, monospace'; ctx.textAlign='center';
+    ctx.fillText(title, cx, cy-4);
+    ctx.font='800 20px ui-sans-serif, system-ui, sans-serif'; ctx.fillStyle=css('--ink');
+    ctx.fillText(Math.round(R.vv*3.6)+' km/h', cx, cy+16);
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    const rad=Math.min(H*0.36, W*0.19), cxL=W*0.28, cxR=W*0.72, cy=H*0.5;
+    drawRing(human,cxL,cy,rad,'LJUDJE');
+    drawRing(av,cxR,cy,rad,'AVTONOMNI');
+    el('flowStats').innerHTML=
+      '<span class="chip"><i class="d" style="background:'+css('--signal')+'"></i>Ljudje · '+Math.round(human.vv*3.6)+' km/h · pretok <b>'+Math.round(human.thr)+'</b>/min</span>'+
+      '<span class="chip"><i class="d" style="background:'+css('--car-auto')+'"></i>Avtonomni · '+Math.round(av.vv*3.6)+' km/h · pretok <b>'+Math.round(av.thr)+'</b>/min</span>'+
+      '<span class="chip">Ista cesta, isto število vozil — <b>avtonomni prepeljejo več</b></span>';
+  }
+
+  let playing=false, rafId=null;
+  function frame(){ for(let k=0;k<3;k++){ stepRing(human,0.2); stepRing(av,0.2); } draw(); if(playing) rafId=requestAnimationFrame(frame); }
+  function start(){ if(rafId)cancelAnimationFrame(rafId); playing=true; el('flowPlay').textContent='⏸ pavza'; rafId=requestAnimationFrame(frame); }
+  el('flowPlay').addEventListener('click',()=>{ if(playing){playing=false;el('flowPlay').textContent='▸ predvajaj';if(rafId){cancelAnimationFrame(rafId);rafId=null;}} else start(); });
+  new MutationObserver(()=>draw()).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>draw());
+
+  // seed a perturbation so the human jam forms deterministically
+  human.cars[0].v=0.5; human.cars[1].v=1.5;
+  resize();
+  if(reduce){ for(let k=0;k<600;k++){stepRing(human,0.2);stepRing(av,0.2);} draw(); }
+  else { let seen=false;
+    if('IntersectionObserver' in window){ const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&!seen){seen=true;start();}}),{threshold:0.25}); io.observe(cv); }
+    else start(); }
 })();
 </script>
 
