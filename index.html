@@ -161,6 +161,18 @@
   .analysis .prose th,.analysis .prose td{border:1px solid var(--hair);padding:6px 9px;text-align:left;white-space:nowrap}
   .analysis .prose thead th{background:var(--surface-2);font-family:"JetBrains Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
   .analysis .prose blockquote{margin:10px 0;padding:10px 14px;border-left:3px solid var(--signal);background:var(--signal-wash);border-radius:0 8px 8px 0;color:var(--ink);font-size:13.5px}
+  /* Other experiments */
+  .expgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+  .expcard{display:flex;flex-direction:column;gap:6px;border:1px solid var(--hair);background:var(--surface);border-radius:12px;padding:15px 16px;text-decoration:none;color:inherit;transition:border-color .14s,transform .14s}
+  .expcard:hover{border-color:var(--signal);transform:translateY(-1px)}
+  .expcard:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+  .expcard .tagrow{display:flex;justify-content:space-between;align-items:center;font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase}
+  .expcard .reg{color:var(--signal);font-weight:700}
+  .expcard .yr{color:var(--muted)}
+  .expcard h3{font-family:"Archivo",sans-serif;font-weight:800;font-size:15.5px;letter-spacing:-.01em;margin:2px 0 0;color:var(--ink)}
+  .expcard p{font-size:13px;color:var(--muted);margin:0;line-height:1.5}
+  .expcard .src{margin-top:auto;padding-top:4px;font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--ghost);letter-spacing:.03em}
+  @media(max-width:760px){ .expgrid{grid-template-columns:1fr} }
   @media(max-width:760px){ .evgrid{grid-template-columns:1fr} }
 
   .divider{display:flex;align-items:center;gap:14px;margin:34px 0 6px}
@@ -607,10 +619,12 @@
     </div>
   </details>
 
+  <div class="divider"><span>Avtor · drugi eksperimenti</span></div>
+
   <div class="author">
       <div class="au-l">
         <div class="au-name">Jan Macarol</div>
-        <div class="au-role">Avtor eksperimentov in simulacije · preizkusil FSD (Zagreb) in Zeekr (Hangzhou)</div>
+        <div class="au-role">Avtor eksperimentov o prometu prihodnosti — interaktivne simulacije mobilnosti in avtonomne vožnje. Teslin FSD (Zagreb) in Zeekr (Hangzhou) preizkusil iz prve roke.</div>
       </div>
       <nav class="au-social" aria-label="Družbeni kanali avtorja">
         <a href="https://instagram.com/janmacarol" target="_blank" rel="noopener">Instagram</a>
@@ -618,6 +632,21 @@
         <a href="https://www.linkedin.com/in/janmacarol" target="_blank" rel="noopener">LinkedIn</a>
         <a href="https://facebook.com/janmacarol" target="_blank" rel="noopener">Facebook</a>
       </nav>
+    </div>
+
+  <div class="expgrid">
+      <a class="expcard" href="https://janmacarolvrabec.github.io/Traffic-Jam-Simulator/" target="_blank" rel="noopener">
+        <div class="tagrow"><span class="reg">Eksperiment</span><span class="yr">odpri ↗</span></div>
+        <h3>Simulator fantomskih zastojev</h3>
+        <p>Kdo je kriv za fantomski zastoj? Trije poskusi z modelom Nagel–Schreckenberg, umerjeni na slovenske avtoceste — kako zastoj nastane brez ovire in zakaj nižja omejitev izboljša pretok in varnost.</p>
+        <div class="src">janmacarolvrabec.github.io</div>
+      </a>
+      <a class="expcard" href="https://janmacarolvrabec.github.io/highway-speed-management/" target="_blank" rel="noopener">
+        <div class="tagrow"><span class="reg">Eksperiment</span><span class="yr">odpri ↗</span></div>
+        <h3>Upravljanje hitrosti na avtocesti</h3>
+        <p>Kako omejitve in usklajevanje hitrosti (variabilne omejitve) vplivajo na pretočnost, stabilnost toka in varnost na avtocesti — interaktivni eksperiment.</p>
+        <div class="src">janmacarolvrabec.github.io</div>
+      </a>
     </div>
 
   <footer>
