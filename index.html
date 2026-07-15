@@ -142,6 +142,25 @@
   .srccol li{font-size:12.5px;color:var(--muted);line-height:1.5}
   .srccol li b{color:var(--ink);font-weight:600}
   @media(max-width:760px){ .srcgrid{grid-template-columns:1fr} }
+  /* Embedded foundation analysis */
+  .analysis{margin-top:22px;border:1px solid var(--hair);background:var(--surface);border-radius:14px;padding:2px 18px 6px}
+  .analysis>summary{cursor:pointer;list-style:none;padding:15px 0;font-family:"Archivo",sans-serif;font-weight:800;font-size:17px;letter-spacing:-.01em;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .analysis>summary::-webkit-details-marker{display:none}
+  .analysis>summary .chev{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .analysis[open]>summary{border-bottom:1px solid var(--hair)}
+  .analysis .prose{max-width:76ch;font-size:14px;line-height:1.65;padding-bottom:14px}
+  .analysis .prose h3{font-family:"Archivo",sans-serif;font-weight:800;font-size:16.5px;letter-spacing:-.01em;margin:24px 0 6px;padding-top:16px;border-top:1px solid var(--hair)}
+  .analysis .prose h3:first-of-type{border-top:0;padding-top:8px}
+  .analysis .prose h4{font-family:"Archivo",sans-serif;font-weight:700;font-size:14px;margin:14px 0 3px}
+  .analysis .prose p{margin:7px 0;color:var(--ink)}
+  .analysis .prose ul{margin:7px 0;padding-left:18px}
+  .analysis .prose li{margin:5px 0;color:var(--muted)}
+  .analysis .prose li b,.analysis .prose p b{color:var(--ink);font-weight:600}
+  .analysis .prose .eq{display:block;font-family:"JetBrains Mono",monospace;font-size:12.5px;background:var(--surface-2);border:1px solid var(--hair);border-radius:8px;padding:9px 12px;margin:9px 0;color:var(--steel);overflow-x:auto;white-space:nowrap}
+  .analysis .prose table{border-collapse:collapse;width:100%;font-size:12.5px;margin:9px 0;display:block;overflow-x:auto}
+  .analysis .prose th,.analysis .prose td{border:1px solid var(--hair);padding:6px 9px;text-align:left;white-space:nowrap}
+  .analysis .prose thead th{background:var(--surface-2);font-family:"JetBrains Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:700}
+  .analysis .prose blockquote{margin:10px 0;padding:10px 14px;border-left:3px solid var(--signal);background:var(--signal-wash);border-radius:0 8px 8px 0;color:var(--ink);font-size:13.5px}
   @media(max-width:760px){ .evgrid{grid-template-columns:1fr} }
 
   .divider{display:flex;align-items:center;gap:14px;margin:34px 0 6px}
@@ -539,6 +558,55 @@
     </div>
   </section>
 
+  <details class="analysis" id="analiza">
+    <summary>Temeljna analiza — celotno besedilo <span class="chev">▸ razpri</span></summary>
+    <div class="prose">
+      <h3>1. Teza in povzetek</h3>
+      <p>Ko avtonomna vozila začnemo <b>deliti</b>, se svetovni vozni park preneha večati in začne upadati — za isto mobilnost pa ne potrebujemo več cest, ampak bolje izkoriščene obstoječe. Dve stvari se zgodita hkrati:</p>
+      <ul>
+        <li><b>Lastništvo (število vozil) doseže vrh in pade.</b> Deljeno vozilo vozi 24 ur na dan in opravi delo mnogih zasebnih, ki 95 % časa stojijo.</li>
+        <li><b>Prevoženi kilometri se lahko celo povečajo.</b> Prazne vožnje in novo povpraševanje dvignejo kilometre — a prepustnost obstoječih cest raste hitreje (platooning), zato nova gradnja ni nujna.</li>
+      </ul>
+      <p>Vrh avtomobilov je torej vrh <i>lastništva</i>, ne nujno prometa.</p>
+
+      <h3>2. Regulatorna realnost EU 2026 in D-day</h3>
+      <p>Nizozemski RDW je 2026 izdal začasno EU homologacijo za Teslin FSD. Pošteni pridržek: odobreno je <b>FSD Supervised</b> — sistem <b>stopnje 2</b>, ki zahteva pozornost voznika. Prava avtonomija brez voznika (L4–L5), ki šele omogoča deljeno floto, je še pred nami; »leto odobritve prave avtonomije« zato obravnavamo kot <b>spremenljivko</b>.</p>
+      <p><b>Tehnologija že deluje (D-day):</b> Waymo vozi brez voznika (SF, Phoenix, LA, Austin); Tesla FSD pelje od A do B; NVIDIA je predstavila celovito platformo (DRIVE Thor/Hyperion); Baidu Apollo Go, XPeng in Zeekr vozijo robotaksije na Kitajskem; Mercedes Drive Pilot ponuja L3. <b>Avtor je osebno preizkusil</b> Tesla FSD (Zagreb) in Zeekr avtonomno vožnjo (Hangzhou) — tehnologija je obstoječa in zrela; točko inovacije smo že prešli.</p>
+
+      <h3>3. Krivulje uveljavitve (zakaj S-krivulja)</h3>
+      <p>Nove tehnologije se uveljavijo po <b>logistični (S-) krivulji</b>: počasen začetek, eksplozivna sredina, nasičenje (konj→avto ~15 let; pametni telefon ~7 let). Danes je difuzija strmejša, a avto ni telefon — je drag in dolgoživ, zato je strmina <b>med</b> obema. Delež deljene avtonomije v regiji:</p>
+      <p class="eq">φᵣ(t) = p_max,ᵣ / ( 1 + e^(−kᵣ·(t − t0ᵣ)) )</p>
+
+      <h3>4. Dokaz »1/3 voznega parka«</h3>
+      <p>Študija <b>ITF/OECD (Lizbona)</b>: deljena samovozeča flota bi naredila ~90 % avtomobilov odvečnih; ob konicah bi zadoščala <b>~1/3</b> današnjih vozil (potrjeno za Helsinke). <b>Vzvod je deljenje, ne avtonomija sama</b> — zasebno avtonomno vozilo zniža park le za ~desetino. Pošten pridržek iz iste študije: skupni kilometri (VKT) narastejo. Zato ločimo dve krivulji.</p>
+      <p class="eq">Nᵣ(t) = N0ᵣ · Dᵣ(t) · [ 1 − φᵣ(t)·(1 − 1/m) ]</p>
+
+      <h3>5. Vrh avtomobilov in neenakomeren razvoj</h3>
+      <p>Svetovni vrh je <b>vsota regij</b>, ki dosežejo vrh ob različnih časih. Izhodišče brez preobrata: ~1,3 mrd (2020) → ~2,2 mrd (2050). Razvite regije so vrh dosegle ~2023; nerazvite rastejo (prebivalstvo zunaj OECD raste 3× hitreje).</p>
+      <table><thead><tr><th>Regija</th><th>Vrh (srednji scenarij)</th></tr></thead><tbody>
+        <tr><td>Razviti / OECD</td><td>sredina 2030. let</td></tr>
+        <tr><td>Kitajska</td><td>pozna 2030. let</td></tr>
+        <tr><td>Ost. Azija · Lat. Amerika · Bl. vzhod</td><td>okoli 2045</td></tr>
+        <tr><td>Afrika · Južna Azija</td><td>raste še po 2050</td></tr>
+      </tbody></table>
+      <p><b>Na mapi:</b> val se sproži v ZDA (poln park šele ~2045), sledita Kitajska in Evropa; slabo razviti deli (večina Afrike, Rusija, deli Azije) ostajajo pretežno klasični še 2060. Do 2060 je avtonomnih le ~polovica — konzervativna projekcija.</p>
+
+      <h3>6. Infrastruktura in manj zastojev</h3>
+      <p><b>Za tezo:</b> pri ~50 % penetraciji se prepustnost cest več kot podvoji; PATH (Berkeley) meri prepustnost pasu 2–3× s platooningom.</p>
+      <p><b>Zakaj manj zastojev:</b> večina zastojev nastane iz <b>fantomskih valov</b> — človeški zamik reakcije (~1 s) sproži stop-and-go val brez ovire (Sugiyama 2008). Že en avtonomni avto zaduši te valove (Stern 2018); stroji vozijo usklajeno, zato nestabilnost izgine (model IDM, Treiber 2000).</p>
+      <p><b>Pošten rebound:</b> boljša izraba spodbudi novo povpraševanje (novi uporabniki, prazne vožnje). Model to odkrito prikaže:</p>
+      <p class="eq">VKTᵣ(t) = Dᵣ(t)·(1 + φᵣ(t)·prazne_vožnje)&nbsp;&nbsp;·&nbsp;&nbsp;Capᵣ(t) = 1 + aᵣ(t)·prepustnost</p>
+      <p class="eq">L(t) = Σ wᵣ·VKTᵣ(t) / Σ wᵣ·Capᵣ(t)&nbsp;&nbsp;( ≤1 = ceste zadoščajo · >1 = potrebna gradnja )</p>
+
+      <h3>7. Model in enačbe</h3>
+      <p>Časovni okvir 2025–2065; štiri regije. Povpraševanje Dᵣ(t) raste z upadajočo stopnjo do nasičenja; vozni park po enačbi iz razdelka 4; cestna obremenitev iz razdelka 6. Vzvodi (drsniki): krovni delež deljenja, izkoriščenost m, zamik uveljavitve, hitrost k, rast povpraševanja, prazne vožnje, pridobitev prepustnosti, izhodišče N0. Trije scenariji: Konzervativni, Srednji, Agresivni (Seba).</p>
+
+      <h3>8. Viri</h3>
+      <p>ITF/OECD (Lizbona 2015, Helsinki 2016) · RethinkX / Seba &amp; Arbib (2017) · S&amp;P Global Mobility · Litman/VTPI · Sugiyama idr. (2008) · Stern idr. (2018) · PATH/Berkeley · Talebpour &amp; Mahmassani (2016) · Treiber idr. (2000, IDM) · RDW/EU, Waymo, Tesla, NVIDIA, Baidu, XPeng, Zeekr, Mercedes · SAE J3016 · avtorjev preizkus (FSD Zagreb, Zeekr Hangzhou). Podroben, razvrščen seznam je v razdelku <b>Viri in študije</b> zgoraj.</p>
+      <blockquote><b>Opozorilo:</b> simulacija je miselni eksperiment, ne napoved. Parametri so negotovi in nastavljivi; namen je pokazati občutljivost izida na predpostavke.</blockquote>
+    </div>
+  </details>
+
   <div class="author">
       <div class="au-l">
         <div class="au-name">Jan Macarol</div>
@@ -554,7 +622,7 @@
 
   <footer>
     Model: N(t) = Σᵣ N₀ᵣ · Dᵣ(t) · [1 − φᵣ(t)·(1 − 1/m)] &nbsp;·&nbsp; L(t) = Σ wᵣ·VKTᵣ / Σ wᵣ·Capᵣ<br>
-    4 regije · Viri: ITF/OECD (Lizbona, Helsinki), RethinkX (Seba), S&amp;P Global Mobility, PATH/Berkeley, Litman/VTPI · Podlaga: <a href="docs/temeljna-analiza.md">docs/temeljna-analiza.md</a>
+    4 regije · Viri: ITF/OECD (Lizbona, Helsinki), RethinkX (Seba), S&amp;P Global Mobility, PATH/Berkeley, Litman/VTPI · Podlaga: <a href="#analiza">celotna temeljna analiza (spodaj)</a> · <a href="https://github.com/janmacarolvrabec/Full-Self-Driving-traffic-impact/blob/claude/focused-carson-5m5ey4/docs/temeljna-analiza.md" target="_blank" rel="noopener">izvorni .md</a>
   </footer>
 </div>
 
